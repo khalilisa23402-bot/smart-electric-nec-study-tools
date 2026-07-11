@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEC 100-Question Practice Exam — Interactive</title>
+<style>
+  :root {
+    --navy: #0033cc;
+    --navy-dark: #001e82;
+    --red: #f21824;
+    --gold: #e09e14;
+    --teal: #108a76;
+    --ink: #1a1a22;
+    --grey: #6b6b72;
+    --pale: #f5f6f8;
+    --bg-deep: #020510;
+    --bg-mid: #071033;
+  }
+  * { box-sizing: border-box; }
+  html { min-height: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse 1000px 560px at 50% -6%, rgba(60,100,255,0.40), transparent 60%),
+      radial-gradient(ellipse 800px 640px at 95% 105%, rgba(20,60,200,0.28), transparent 55%),
+      radial-gradient(ellipse 700px 500px at 0% 60%, rgba(16,138,118,0.14), transparent 55%),
+      linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 45%, var(--bg-deep) 100%);
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  .bg-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .bg-fx svg { position: absolute; }
+  .bg-circuit { width: 100%; height: 100%; opacity: 0.32; }
+  .bg-circuit .flow {
+    stroke-dasharray: 5 16;
+    animation: flowcurrent 4.5s linear infinite;
+  }
+  @keyframes flowcurrent { to { stroke-dashoffset: -210; } }
+
+  .bolt {
+    width: 70px;
+    height: 280px;
+    opacity: 0;
+    filter: drop-shadow(0 0 3px rgba(210,225,255,0.95)) drop-shadow(0 0 10px rgba(140,180,255,0.7)) drop-shadow(0 0 22px rgba(90,140,255,0.45));
+    animation: strike 8.5s infinite;
+  }
+  .bolt1 { top: 2%;  left: 8%;  animation-delay: 0.3s; }
+  .bolt2 { top: 4%;  right: 11%; width: 55px; height: 230px; transform: scaleX(-1); animation-delay: 3.4s; }
+  .bolt3 { top: 52%; left: 46%; width: 50px; height: 210px; animation-delay: 6.1s; }
+
+  @keyframes strike {
+    0%, 100% { opacity: 0; }
+    0.5% { opacity: 1; }
+    1.4% { opacity: 0.1; }
+    2.1% { opacity: 0.85; }
+    2.6% { opacity: 0; }
+    3.2% { opacity: 0.5; }
+    3.7% { opacity: 0; }
+  }
+
+  .topbar {
+    background: linear-gradient(180deg, rgba(4,10,42,0.94), rgba(0,22,110,0.88));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 28px rgba(40,90,255,0.35), 0 1px 0 rgba(130,165,255,0.35);
+    border-bottom: 1px solid rgba(130,165,255,0.25);
+  }
+  .topbar-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .topbar h1 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0.3px;
+  }
+  .timer {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    font-size: 20px;
+    background: rgba(255,255,255,0.14);
+    padding: 6px 14px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+  }
+  .timer.low { background: var(--red); }
+  .voice-btn {
+    background: rgba(255,255,255,0.14);
+    color: white;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    padding: 7px 13px;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .voice-btn:hover { background: rgba(255,255,255,0.22); }
+  .voice-btn.muted { opacity: 0.55; }
+  .submit-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .submit-btn:hover { filter: brightness(1.08); }
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 18px 70px;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: rgba(220,230,255,0.75);
+    margin: 14px 2px 8px;
+  }
+  .progress-outer {
+    height: 7px;
+    background: rgba(255,255,255,0.14);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.35);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-inner {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.2s ease;
+    box-shadow: 0 0 10px currentColor;
+  }
+  .qcard {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 44px rgba(0,8,50,0.55), 0 0 0 1px rgba(255,255,255,0.7) inset, 0 0 70px rgba(60,110,255,0.20);
+    padding: 24px 22px;
+    border-top: 6px solid var(--navy);
+  }
+  .qcard-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .qmeta {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--grey);
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+  .replay-btn {
+    background: #eef1ff;
+    color: var(--navy);
+    border: none;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .replay-btn:hover { background: #dde4ff; }
+  .replay-btn.speaking { background: var(--navy); color: white; }
+  .calc-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: white;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .qtext {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 14px;
+    border: 1.5px solid #e0e2e8;
+    border-radius: 11px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .choice:hover { border-color: var(--navy); background: #f7f9ff; }
+  .choice.selected {
+    border-color: var(--navy);
+    background: #eef1ff;
+  }
+  .choice .letter {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #eceef2;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12.5px;
+  }
+  .choice.selected .letter { background: var(--navy); color: white; }
+  .choice .ctext { font-size: 14.5px; line-height: 1.45; padding-top: 3px; }
+
+  .navrow {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .navbtn {
+    flex: 1;
+    padding: 13px 0;
+    border-radius: 10px;
+    border: 1.5px solid #d7d9e0;
+    background: white;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .navbtn:hover { background: #f0f1f5; }
+  .navbtn:disabled { opacity: 0.4; cursor: default; }
+
+  .maptoggle {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8fb3ff;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .qmap {
+    display: none;
+    margin-top: 12px;
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 12px 40px rgba(0,8,50,0.5), 0 0 50px rgba(60,110,255,0.16);
+  }
+  .qmap.open { display: block; }
+  .qmap-part { font-size: 11px; font-weight: 700; color: var(--grey); margin: 10px 0 6px; letter-spacing: 0.4px; }
+  .qmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+    gap: 6px;
+  }
+  .qmap-btn {
+    aspect-ratio: 1;
+    border-radius: 7px;
+    border: 1.5px solid #d7d9e0;
+    background: #f8f8fa;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .qmap-btn.answered { color: white; border-color: transparent; }
+  .qmap-btn.current { outline: 2.5px solid var(--ink); outline-offset: 1px; }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 26px;
+    font-size: 11.5px;
+    color: rgba(210,220,255,0.45);
+  }
+
+  .voice-settings {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+  .voice-settings label {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(220,230,255,0.85);
+    white-space: nowrap;
+  }
+  .voice-settings select {
+    flex: 1;
+    min-width: 140px;
+    background: rgba(255,255,255,0.95);
+    color: var(--ink);
+    border: none;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .voice-settings .test-btn {
+    background: var(--gold);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .voice-settings .test-btn:hover { filter: brightness(1.08); }
+
+  /* Results view */
+  #resultsView { display: none; }
+  .score-card {
+    background: white;
+    border-radius: 18px;
+    padding: 30px 24px;
+    text-align: center;
+    box-shadow: 0 12px 44px rgba(0,8,50,0.55), 0 0 70px rgba(60,110,255,0.20);
+  }
+  .score-big { font-size: 52px; font-weight: 800; color: var(--navy); }
+  .score-sub { font-size: 14px; color: var(--grey); margin-top: 4px; }
+  .part-breakdown {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .part-stat {
+    background: var(--pale);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .part-stat .pn { font-size: 11px; font-weight: 700; color: var(--grey); }
+  .part-stat .pv { font-size: 19px; font-weight: 800; margin-top: 2px; }
+  .action-row { display: flex; gap: 12px; margin-top: 22px; }
+  .action-btn {
+    flex: 1;
+    padding: 13px 0;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .action-btn.primary { background: var(--navy); color: white; }
+  .action-btn.secondary { background: #eceef2; color: var(--ink); }
+
+  .review-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 12px;
+    border-left: 6px solid #d7d9e0;
+  }
+  .review-item.correct { border-left-color: var(--teal); }
+  .review-item.incorrect { border-left-color: var(--red); }
+  .review-item.blank { border-left-color: var(--gold); }
+  .review-q { font-weight: 700; font-size: 13.5px; margin-bottom: 8px; }
+  .review-line { font-size: 12.5px; margin: 3px 0; }
+  .review-line.you-correct { color: var(--teal); font-weight: 700; }
+  .review-line.you-wrong { color: var(--red); font-weight: 700; text-decoration: line-through; }
+  .review-line.correct-answer { color: var(--teal); font-weight: 700; }
+  .review-exp { font-size: 12.5px; color: #444; margin-top: 6px; }
+  .review-cite { font-size: 11px; color: var(--grey); margin-top: 4px; font-style: italic; }
+  #reviewList { display: none; margin-top: 8px; }
+
+  .flag-btn {
+    background: #f8f8fa;
+    color: var(--grey);
+    border: 1.5px solid #e0e2e8;
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .flag-btn.flagged { background: #fff3d6; color: #a06b00; border-color: #f0d38a; }
+  .qmap-btn.flagged { box-shadow: inset 0 0 0 2px var(--gold); }
+
+  .practice-badge {
+    background: var(--teal);
+    color: white;
+    font-weight: 800;
+    font-size: 12.5px;
+    padding: 6px 13px;
+    border-radius: 9px;
+    letter-spacing: 0.3px;
+  }
+
+  .resume-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(2,5,16,0.82);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .resume-card {
+    background: white;
+    border-radius: 18px;
+    padding: 28px 26px;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .resume-card h2 { margin: 0 0 10px; font-size: 20px; color: var(--ink); }
+  .resume-card p { margin: 0 0 20px; font-size: 13.5px; color: var(--grey); line-height: 1.5; }
+  .resume-actions { display: flex; gap: 10px; }
+  .resume-actions button {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .resume-actions .go { background: var(--navy); color: white; }
+  .resume-actions .fresh { background: #eceef2; color: var(--ink); }
+
+  .history-box {
+    margin-top: 20px;
+    background: var(--pale);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+  .history-box h3 { margin: 0 0 10px; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--grey); }
+  .history-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    padding: 5px 0;
+    border-bottom: 1px solid #e6e7ec;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .history-row .hdate { color: var(--grey); }
+  .history-row .hscore { font-weight: 700; }
+
+  .chart-wrap { margin-top: 20px; }
+  .chart-wrap canvas { width: 100%; height: 140px; display: block; }
+
+  .retake-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 13px 0;
+    border-radius: 10px;
+    border: none;
+    background: var(--gold);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .retake-btn:hover { filter: brightness(1.06); }
+  .retake-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .report-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 13px 0;
+    border-radius: 10px;
+    border: 2px solid var(--teal);
+    background: white;
+    color: var(--teal);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .report-btn:hover { background: var(--teal); color: white; }
+  .report-note {
+    font-size: 11.5px;
+    color: var(--grey);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg-fx" aria-hidden="true">
+    <svg class="bg-circuit" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#5c8dff" stroke-width="1.4" fill="none">
+        <path d="M0,120 H300 V60 H660" />
+        <path d="M1440,210 H1100 V330 H840" />
+        <path d="M0,520 H240 V640 H500 V780" />
+        <path d="M1440,720 H1180 V580 H960" />
+        <path d="M140,0 V190 H380" />
+        <path d="M1300,900 V700 H1060" />
+        <path d="M0,860 H180 V760" />
+        <path d="M1440,40 H1240 V150" />
+        <path class="flow" d="M0,120 H300 V60 H660" stroke="#a9c3ff" stroke-width="2" />
+        <path class="flow" d="M1440,720 H1180 V580 H960" stroke="#a9c3ff" stroke-width="2" style="animation-delay:1.4s" />
+        <path class="flow" d="M140,0 V190 H380" stroke="#a9c3ff" stroke-width="2" style="animation-delay:2.6s" />
+      </g>
+      <g fill="#7ea0ff">
+        <circle cx="300" cy="120" r="4"/>
+        <circle cx="660" cy="60" r="4"/>
+        <circle cx="1100" cy="210" r="4"/>
+        <circle cx="840" cy="330" r="4"/>
+        <circle cx="240" cy="520" r="4"/>
+        <circle cx="500" cy="780" r="4"/>
+        <circle cx="1180" cy="720" r="4"/>
+        <circle cx="960" cy="580" r="4"/>
+        <circle cx="380" cy="0" r="4"/>
+        <circle cx="1060" cy="900" r="4"/>
+        <circle cx="180" cy="860" r="4"/>
+        <circle cx="1240" cy="40" r="4"/>
+      </g>
+    </svg>
+    <svg class="bolt bolt1" viewBox="0 0 60 240" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30,0 L22,38 L36,42 L18,85 L32,90 L10,140 L26,146 L16,195 L24,240"
+            fill="none" stroke="#8fb0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <path d="M30,0 L22,38 L36,42 L18,85 L32,90 L10,140 L26,146 L16,195 L24,240"
+            fill="none" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M32,90 L52,110 L44,116 L58,142" fill="none" stroke="#8fb0ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M32,90 L52,110 L44,116 L58,142" fill="none" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg class="bolt bolt2" viewBox="0 0 60 240" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30,0 L40,34 L24,40 L44,82 L26,88 L46,132 L28,138 L38,180 L30,240"
+            fill="none" stroke="#8fb0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <path d="M30,0 L40,34 L24,40 L44,82 L26,88 L46,132 L28,138 L38,180 L30,240"
+            fill="none" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M26,88 L6,112 L14,118 L2,150" fill="none" stroke="#8fb0ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M26,88 L6,112 L14,118 L2,150" fill="none" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg class="bolt bolt3" viewBox="0 0 60 240" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30,0 L18,30 L34,36 L14,78 L30,84 L12,128 L28,134 L18,178 L26,215 L20,240"
+            fill="none" stroke="#8fb0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <path d="M30,0 L18,30 L34,36 L14,78 L30,84 L12,128 L28,134 L18,178 L26,215 L20,240"
+            fill="none" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M30,84 L50,102 L42,108 L54,132" fill="none" stroke="#8fb0ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M30,84 L50,102 L42,108 L54,132" fill="none" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <h1 id="titleText">NEC 100-Question Practice Exam</h1>
+      <div class="timer" id="timerDisplay">3:00:00</div>
+      <div class="practice-badge" id="practiceBadge" style="display:none;">PRACTICE MODE</div>
+      <button class="voice-btn" id="voiceToggleBtn">🔊 Voice On</button>
+      <button class="submit-btn" id="submitBtn">Submit Exam</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div id="examView">
+      <div class="voice-settings" id="voiceSettings">
+        <label for="voiceSelect">Reader voice:</label>
+        <select id="voiceSelect"></select>
+        <button class="test-btn" id="testVoiceBtn">▶ Test Voice</button>
+      </div>
+
+      <div class="progress-row">
+        <span id="progressLabel">Question 1 of 100</span>
+        <span id="partLabel">Part I</span>
+      </div>
+      <div class="progress-outer"><div id="progressBar" class="progress-inner" style="width:1%;"></div></div>
+
+      <div class="qcard" id="qcard">
+        <div class="qcard-head">
+          <div class="qmeta" id="qsection"></div>
+          <div style="display:flex; gap:8px;">
+            <button class="flag-btn" id="flagBtn" title="Flag this question to revisit later">☆ Flag</button>
+            <button class="replay-btn" id="replayBtn" title="Read this question and all answer choices aloud">🔊 Replay Audio</button>
+          </div>
+        </div>
+        <div id="calcTagWrap"></div>
+        <div class="qtext" id="qtext"></div>
+        <div id="choicesWrap"></div>
+      </div>
+
+      <div class="navrow">
+        <button class="navbtn" id="prevBtn">&larr; Previous</button>
+        <button class="navbtn" id="nextBtn">Next &rarr;</button>
+      </div>
+
+      <div class="maptoggle" id="mapToggle">Jump to any question &darr;</div>
+      <div class="qmap" id="qmap"></div>
+
+      <div class="footer-note">
+        Smart Electric Training Program — Isa Harris (Premier Edition)<br>
+        Independent study aid. Not affiliated with or endorsed by NFPA.
+      </div>
+    </div>
+
+    <div id="resultsView">
+      <div class="score-card">
+        <div class="score-sub" id="resultsHeading">YOUR SCORE</div>
+        <div class="score-big" id="scoreBig">0%</div>
+        <div class="score-sub" id="scoreDetail">0 of 100 correct</div>
+        <div class="part-breakdown" id="partBreakdown"></div>
+        <div class="chart-wrap" id="chartWrap"><canvas id="perfChart"></canvas></div>
+        <button class="retake-btn" id="retakeBtn">Retake Missed Questions Only</button>
+        <button class="report-btn" id="reportBtn">📊 Download My Study Report (Spreadsheet)</button>
+        <div class="report-note">A personalized spreadsheet ranking every NEC article from weakest to strongest, plus a full list of missed questions to review — one download per attempt.</div>
+        <div class="action-row">
+          <button class="action-btn primary" id="reviewBtn">Review All Answers</button>
+          <button class="action-btn secondary" id="restartBtn">Restart Exam</button>
+        </div>
+        <div class="history-box" id="historyBox" style="display:none;">
+          <h3>Your Attempt History</h3>
+          <div id="historyList"></div>
+        </div>
+      </div>
+      <div id="reviewList"></div>
+      <div class="footer-note">
+        Smart Electric Training Program — Isa Harris (Premier Edition)<br>
+        Independent study aid. Not affiliated with or endorsed by NFPA.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="resume-overlay" id="resumeOverlay" style="display:none;">
+    <div class="resume-card">
+      <h2>Welcome back</h2>
+      <p id="resumeText">You have an exam in progress. Pick up where you left off, or start over from question 1.</p>
+      <div class="resume-actions">
+        <button class="fresh" id="resumeFreshBtn">Start Fresh</button>
+        <button class="go" id="resumeGoBtn">Resume Exam</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var QUESTIONS = [{"n": 1, "sec": "Article 90 \u2014 Introduction", "q": "What is the primary purpose of the NEC per 90.1(A)?", "c": ["To ensure the most economical installation", "The practical safeguarding of persons and property from hazards arising from the use of electricity", "To guarantee electrical systems are future-proof", "To standardize electrician wages"], "a": 1, "exp": "90.1(A) states the purpose is practical safeguarding of persons and property from electrical hazards \u2014 not efficiency or future adequacy, which 90.1(B) explicitly disclaims.", "cite": "NEC 90.1(A)", "calc": false}, {"n": 2, "sec": "Article 90 \u2014 Introduction", "q": "Which of the following is NOT covered by the NEC per 90.2?", "c": ["A single-family dwelling", "A commercial office building", "Installations under the exclusive control of an electric utility for generation, transmission, or distribution", "A mobile home"], "a": 2, "exp": "90.2(B) excludes utility-owned installations dedicated to generation, transmission, and distribution from NEC coverage.", "cite": "NEC 90.2(B)", "calc": false}, {"n": 3, "sec": "Article 90 \u2014 Introduction", "q": "A code requirement that uses the word \u201cshall\u201d is:", "c": ["A suggestion", "Mandatory", "Optional", "Only enforceable in commercial occupancies"], "a": 1, "exp": "\u201cShall\u201d denotes a mandatory rule.", "cite": "NEC 90.5(A)", "calc": false}, {"n": 4, "sec": "Article 90 \u2014 Introduction", "q": "An Informational Note in the NEC is:", "c": ["Enforceable exactly like a numbered code rule", "Explanatory material only, not an enforceable requirement", "Applicable only to Chapter 9", "A historical footnote with no practical use"], "a": 1, "exp": "Informational Notes explain intent or point to related material \u2014 they are never themselves enforceable code.", "cite": "NEC 90.5(C)", "calc": false}, {"n": 5, "sec": "Article 90 \u2014 Introduction", "q": "Who has the authority to approve equipment, materials, and methods, and to interpret the code\u2019s application on a specific job?", "c": ["The manufacturer", "The Authority Having Jurisdiction (AHJ)", "NFPA directly", "The electrical contractor\u2019s insurance company"], "a": 1, "exp": "The AHJ enforces and interprets the code locally, including approving equipment and materials.", "cite": "NEC 90.4", "calc": false}, {"n": 6, "sec": "Article 100 \u2014 Definitions", "q": "A \u201cDwelling Unit\u201d is best defined as:", "c": ["Any structure with electrical service", "A single unit providing complete independent living facilities, including permanent provisions for living, sleeping, cooking, and sanitation", "Only single-family detached homes", "Any room with a bed"], "a": 1, "exp": "The Article 100 definition requires all four permanent provisions together \u2014 living, sleeping, cooking, and sanitation.", "cite": "NEC Art. 100", "calc": false}, {"n": 7, "sec": "Article 100 \u2014 Definitions", "q": "The term \u201cReadily Accessible\u201d means:", "c": ["Reachable using a portable ladder", "Capable of being reached quickly, without climbing over or removing obstacles or using portable ladders", "Located behind a locked door", "Visible from the street"], "a": 1, "exp": "\u201cReadily accessible\u201d specifically excludes needing a ladder or moving obstacles.", "cite": "NEC Art. 100", "calc": false}, {"n": 8, "sec": "Article 100 \u2014 Definitions", "q": "A \u201cBranch Circuit\u201d is defined as:", "c": ["The conductors between the service point and the first overcurrent device", "The circuit conductors between the final overcurrent device protecting the circuit and the outlet(s)", "Any conductor smaller than 6 AWG", "A circuit that only feeds lighting"], "a": 1, "exp": "This is the Article 100 definition of branch circuit.", "cite": "NEC Art. 100", "calc": false}, {"n": 9, "sec": "Article 210 \u2014 Branch Circuits", "q": "Conductors and overcurrent devices supplying a continuous load must have a rating of at least what percentage of that continuous load?", "c": ["80%", "100%", "125%", "150%"], "a": 2, "exp": "Continuous loads (on 3+ hours) require 125% sizing on both conductors and OCPD unless the assembly is listed for 100% continuous duty.", "cite": "NEC 210.19(A)/210.20(A)", "calc": true}, {"n": 10, "sec": "Article 210 \u2014 Branch Circuits", "q": "In a dwelling unit, kitchen and dining area receptacles must be supplied by how many 20-amp small-appliance branch circuits, minimum?", "c": ["1", "2", "3", "4"], "a": 1, "exp": "At least two 20A small-appliance circuits are required to serve kitchen/dining receptacles.", "cite": "NEC 210.11(C)(1)", "calc": false}, {"n": 11, "sec": "Article 210 \u2014 Branch Circuits", "q": "GFCI protection is required for 125-volt, 15- and 20-amp receptacles in which dwelling unit locations?", "c": ["Living room only", "Bathrooms, kitchens, garages, and outdoors, among other listed locations", "Only unfinished basements", "GFCI is never required in dwellings"], "a": 1, "exp": "210.8(A) lists bathrooms, kitchens, garages, outdoors, crawl spaces, unfinished basements, and more.", "cite": "NEC 210.8(A)", "calc": false}, {"n": 12, "sec": "Article 210 \u2014 Branch Circuits", "q": "AFCI protection is required for branch circuits supplying outlets in which dwelling unit areas?", "c": ["Only bedrooms", "Kitchens only", "Most dwelling unit living areas, including bedrooms, living rooms, kitchens, and similar rooms", "Only circuits over 30 amps"], "a": 2, "exp": "210.12 casts a wide net across most dwelling living areas, not just bedrooms.", "cite": "NEC 210.12(A)", "calc": false}, {"n": 13, "sec": "Article 210 \u2014 Branch Circuits", "q": "A multiwire branch circuit consists of:", "c": ["Two or more ungrounded conductors with a voltage between them, and a shared grounded conductor with equal voltage between each ungrounded conductor and the grounded conductor", "Any circuit with more than one receptacle", "A circuit using only stranded conductors", "A 3-phase circuit only"], "a": 0, "exp": "This is the Article 100 definition of a multiwire branch circuit.", "cite": "NEC Art. 100 / 210.4", "calc": false}, {"n": 14, "sec": "Article 210 \u2014 Branch Circuits", "q": "In dwelling unit habitable rooms, no point along a wall space may be more than how far (measured horizontally along the floor line) from a receptacle outlet?", "c": ["3 feet", "6 feet", "8 feet", "12 feet"], "a": 1, "exp": "The 6-foot rule from any point produces receptacle spacing no more than 12 feet apart.", "cite": "NEC 210.52(A)", "calc": false}, {"n": 15, "sec": "Article 210 \u2014 Branch Circuits", "q": "A dwelling unit bathroom must have at least one receptacle outlet located:", "c": ["Anywhere in the bathroom", "Within 3 feet of the outside edge of each basin, and directly adjacent to it", "Only outside the bathroom door", "Bathrooms do not require receptacles"], "a": 1, "exp": "210.52(D) requires a receptacle within 3 ft of each basin's outside edge.", "cite": "NEC 210.52(D)", "calc": false}, {"n": 16, "sec": "Article 210 \u2014 Branch Circuits", "q": "HVAC equipment on rooftops or in attics/crawl spaces must have a 125-volt, 15- or 20-amp receptacle outlet located:", "c": ["Anywhere on the property", "Within 25 feet of the equipment, on the same level, and accessible", "There is no such requirement", "Only required for equipment over 5 tons"], "a": 1, "exp": "A service receptacle must be within 25 ft, same level, accessible.", "cite": "NEC 210.63", "calc": false}, {"n": 17, "sec": "Article 215 \u2014 Feeders", "q": "Feeder conductors supplying continuous loads must have an ampacity of not less than what percent of the continuous load (plus 100% of any noncontinuous load)?", "c": ["80%", "100%", "125%", "150%"], "a": 2, "exp": "Same 125% continuous-load principle as branch circuits, applied to feeders.", "cite": "NEC 215.2(A)(1)", "calc": true}, {"n": 18, "sec": "Article 215 \u2014 Feeders", "q": "Feeder conductors must be sized no smaller than required to supply the load, as computed per which article?", "c": ["90", "220", "310 only", "500"], "a": 1, "exp": "Article 220 governs branch-circuit, feeder, and service load calculations.", "cite": "NEC 215.2 / Art. 220", "calc": false}, {"n": 19, "sec": "Article 215 \u2014 Feeders", "q": "Where feeder conductors supply a single motor, the feeder must have an ampacity of at least:", "c": ["100% of the motor FLC", "115% of the motor FLC", "125% of the motor FLC", "150% of the motor FLC"], "a": 2, "exp": "A single-motor branch circuit/feeder conductor is sized at not less than 125% of the motor's table full-load current.", "cite": "NEC 430.22", "calc": true}, {"n": 20, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling has 1,500 sq ft of livable floor area. Using the general lighting load factor of 3 VA per sq ft, what is the general lighting load?", "c": ["3,000 VA", "4,500 VA", "1,500 VA", "6,000 VA"], "a": 1, "exp": "1,500 sq ft \u00d7 3 VA/sq ft = 4,500 VA.", "cite": "NEC Table 220.12", "calc": true}, {"n": 21, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling requires a minimum of two 20-amp small-appliance circuits and one 20-amp laundry circuit, each calculated at 1,500 VA. What is the combined load for these three circuits?", "c": ["1,500 VA", "3,000 VA", "4,500 VA", "6,000 VA"], "a": 2, "exp": "3 circuits \u00d7 1,500 VA = 4,500 VA.", "cite": "NEC 220.52", "calc": true}, {"n": 22, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling's general lighting load (including small-appliance/laundry circuits) totals 8,000 VA. Applying the standard demand factors \u2014 100% of the first 3,000 VA, 35% of the remainder \u2014 what is the demand load?", "c": ["4,750 VA", "8,000 VA", "2,800 VA", "5,600 VA"], "a": 0, "exp": "3,000 VA \u00d7 100% = 3,000; remaining 5,000 VA \u00d7 35% = 1,750; total = 4,750 VA.", "cite": "NEC Table 220.42", "calc": true}, {"n": 23, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling has one 12 kW household electric range. What demand load is used for this single range in the service/feeder calculation?", "c": ["12 kW (100% of nameplate)", "8 kW", "3 kW", "6 kW"], "a": 1, "exp": "Table 220.55 assigns 8 kW demand for one range rated 12 kW or less.", "cite": "NEC Table 220.55", "calc": true}, {"n": 24, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling has a 5 kW electric clothes dryer. What is the minimum demand load used in the calculation?", "c": ["5,000 VA", "2,500 VA", "1,500 VA", "7,500 VA"], "a": 0, "exp": "Table 220.54 sets a 5,000 VA minimum demand (or nameplate rating if higher) for a single dryer.", "cite": "NEC Table 220.54", "calc": true}, {"n": 25, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling's service disconnecting means, per 230.79(C), must never be smaller than:", "c": ["60 amps", "100 amps", "125 amps", "200 amps"], "a": 1, "exp": "100A is the absolute minimum single-family dwelling service disconnect rating, even if the calculated load is lower.", "cite": "NEC 230.79(C)", "calc": false}, {"n": 26, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling's total calculated demand load is 24,000 VA at 240V, single-phase. What is the minimum service/feeder ampacity required (I = VA \u00f7 V)?", "c": ["80 A", "100 A", "125 A", "150 A"], "a": 1, "exp": "24,000 VA \u00f7 240V = 100A.", "cite": "NEC 220.61 / basic Ohm's law", "calc": true}, {"n": 27, "sec": "Article 220 \u2014 Calculations", "q": "A feeder supplies a continuous load of 40A and a noncontinuous load of 20A. What is the minimum conductor ampacity required?", "c": ["60 A", "70 A", "75 A", "80 A"], "a": 1, "exp": "(40A \u00d7 1.25) + 20A = 50 + 20 = 70A.", "cite": "NEC 215.2(A)(1)", "calc": true}, {"n": 28, "sec": "Article 220 \u2014 Calculations", "q": "A commercial office space of 10,000 sq ft uses a general lighting load factor of 1.3 VA/sq ft. What is the general lighting load?", "c": ["10,000 VA", "13,000 VA", "15,000 VA", "3,000 VA"], "a": 1, "exp": "10,000 sq ft \u00d7 1.3 VA/sq ft = 13,000 VA.", "cite": "NEC Table 220.12", "calc": true}, {"n": 29, "sec": "Article 220 \u2014 Calculations", "q": "The optional dwelling calculation method under 220.82 is permitted only for dwellings served by a feeder/service rated at least:", "c": ["60A", "100A", "100A minimum, 3-wire, 120/240V single-phase", "There is no minimum"], "a": 2, "exp": "220.82 requires a 100A minimum, 3-wire, 120/240V single-phase service or feeder.", "cite": "NEC 220.82(A)", "calc": false}, {"n": 30, "sec": "Article 230 \u2014 Services", "q": "The service disconnecting means must be installed:", "c": ["At any convenient interior location", "At a readily accessible location, either outside or nearest the point of entrance of the conductors", "Only in a locked electrical room", "Underground"], "a": 1, "exp": "230.70(A) requires the disconnect at a readily accessible location nearest the entry point of service conductors.", "cite": "NEC 230.70(A)", "calc": false}, {"n": 31, "sec": "Article 230 \u2014 Services", "q": "How many service disconnects are permitted per service?", "c": ["Exactly 1", "Up to 2", "Up to 6", "Unlimited"], "a": 2, "exp": "Up to six disconnects, grouped, are permitted per service (the \u201csix-disconnect rule\u201d).", "cite": "NEC 230.71(A)", "calc": false}, {"n": 32, "sec": "Article 230 \u2014 Services", "q": "Service-entrance conductors must have sufficient ampacity to carry the loads as computed per which article?", "c": ["90", "220", "250", "430"], "a": 1, "exp": "Article 220 governs the load calculation that determines required service conductor ampacity.", "cite": "NEC 230.42 / Art. 220", "calc": false}, {"n": 33, "sec": "Article 230 \u2014 Services", "q": "A standard direct-buried service conductor (not in a raceway, not under a building, general condition, 600V or less) requires a minimum burial depth of approximately:", "c": ["6 inches", "12 inches", "18 inches", "24 inches"], "a": 3, "exp": "Table 300.5 sets 24 inches as the general direct-burial minimum cover for conductors under 600V.", "cite": "NEC Table 300.5", "calc": true}, {"n": 34, "sec": "Article 230 \u2014 Services", "q": "The primary purpose of the service disconnecting means is to:", "c": ["Limit voltage drop", "Provide a means to disconnect all conductors in a building from the service", "Protect against lightning only", "Measure energy usage"], "a": 1, "exp": "The disconnect's job is a single point to disconnect the building from the utility supply.", "cite": "NEC 230.70", "calc": false}, {"n": 35, "sec": "Article 230 \u2014 Services", "q": "Meter socket enclosures and similar equipment on the supply side of the service disconnect must be:", "c": ["Rated for the available fault current, or otherwise suitable for use on the supply side", "Only used indoors", "Non-metallic only", "Not regulated by the NEC"], "a": 0, "exp": "Supply-side equipment must be suitable for the available fault current at that point.", "cite": "NEC 230.66", "calc": false}, {"n": 36, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "Conductors must be protected against overcurrent in accordance with their:", "c": ["Voltage rating only", "Ampacity, as adjusted/corrected per 310.15", "Physical size only", "Insulation color"], "a": 1, "exp": "240.4 ties overcurrent protection to the conductor's actual (adjusted/corrected) ampacity.", "cite": "NEC 240.4", "calc": false}, {"n": 37, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "14 AWG copper conductors are generally protected at a maximum standard overcurrent device rating of:", "c": ["15 A", "20 A", "30 A", "45 A"], "a": 0, "exp": "The small conductor rule caps 14 AWG copper at 15A.", "cite": "NEC 240.4(D)(3)", "calc": false}, {"n": 38, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "12 AWG copper conductors are generally protected at a maximum standard overcurrent device rating of:", "c": ["15 A", "20 A", "25 A", "30 A"], "a": 1, "exp": "The small conductor rule caps 12 AWG copper at 20A.", "cite": "NEC 240.4(D)(4)", "calc": false}, {"n": 39, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "Which of the following is a standard ampere rating for fuses and circuit breakers?", "c": ["17 A", "20 A", "55 A", "100 A only"], "a": 1, "exp": "20A is one of the standard OCPD ratings listed.", "cite": "NEC 240.6(A)", "calc": false}, {"n": 40, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "A fuse or circuit breaker's operating handle, in its highest position, must not be more than how high above the floor or working platform?", "c": ["5 feet", "6 feet 7 inches", "6.5 feet (78 in)", "7 feet"], "a": 1, "exp": "6 ft 7 in (2.0 m) is the maximum mounting height for readily accessible operation.", "cite": "NEC 240.24(A)", "calc": false}, {"n": 41, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "Overcurrent devices must not be located in which of the following?", "c": ["Electrical closets", "Bathrooms", "Garages", "Basements"], "a": 1, "exp": "240.24(E) prohibits OCPDs in dwelling unit and guest room/suite bathrooms.", "cite": "NEC 240.24(E)", "calc": false}, {"n": 42, "sec": "Article 240 \u2014 Overcurrent Protection", "q": "Absent a specific tap rule, the general rule for unprotected conductors is:", "c": ["Conductors must be protected at their ampacity at the point they receive their supply, unless a specific tap rule in 240.21 applies", "Taps are never allowed", "All taps may be any length", "Taps are limited to 6 AWG only"], "a": 0, "exp": "240.21's general rule requires protection at the supply point unless a listed tap exception applies.", "cite": "NEC 240.21", "calc": false}, {"n": 43, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "A grounding electrode conductor connects the grounded conductor (or equipment) to:", "c": ["A grounding electrode", "The service disconnect enclosure only", "The neutral bar in a subpanel", "Nothing; it's decorative"], "a": 0, "exp": "The GEC's job is connecting the system/equipment to the grounding electrode(s).", "cite": "NEC 250.24 / Art. 100", "calc": false}, {"n": 44, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "A grounding electrode conductor for an AC system is sized per which NEC table?", "c": ["Table 250.66", "Table 310.16", "Table 220.42", "Table 430.250"], "a": 0, "exp": "Table 250.66 sizes the GEC based on the largest ungrounded service-entrance conductor.", "cite": "NEC Table 250.66", "calc": false}, {"n": 45, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "A service uses 2 AWG copper service-entrance conductors. Per Table 250.66, what is the minimum copper grounding electrode conductor size?", "c": ["8 AWG", "6 AWG", "4 AWG", "2 AWG"], "a": 0, "exp": "Table 250.66's breakpoint for service conductors up to 2 AWG copper is an 8 AWG copper GEC.", "cite": "NEC Table 250.66", "calc": true}, {"n": 46, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "When the grounding electrode conductor connects only to a rod, pipe, or plate electrode, it need not be sized larger than:", "c": ["2 AWG copper", "6 AWG copper", "4 AWG copper", "8 AWG copper"], "a": 1, "exp": "The rod/pipe/plate exception caps that portion of the GEC at 6 AWG copper regardless of service size.", "cite": "NEC 250.66(A)", "calc": false}, {"n": 47, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "Equipment grounding conductors (EGC) are sized using which table?", "c": ["Table 250.122", "Table 310.16", "Table 220.55", "Table 300.5"], "a": 0, "exp": "Table 250.122 sizes the EGC based on the rating of the circuit's overcurrent device.", "cite": "NEC Table 250.122", "calc": false}, {"n": 48, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "A circuit protected by a 100A overcurrent device requires a copper EGC no smaller than:", "c": ["10 AWG", "8 AWG", "6 AWG", "4 AWG"], "a": 1, "exp": "Table 250.122 assigns 8 AWG copper as the minimum EGC for a 100A OCPD.", "cite": "NEC Table 250.122", "calc": true}, {"n": 49, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "The main bonding jumper at service equipment connects:", "c": ["The grounded conductor to the equipment grounding conductor/enclosure at service equipment", "Two receptacles together", "A subpanel neutral to ground", "Nothing at the service"], "a": 0, "exp": "The main bonding jumper ties the grounded (neutral) conductor to equipment grounding at the service, and only at the service.", "cite": "NEC 250.28", "calc": false}, {"n": 50, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "In a subpanel (not at the service), the neutral (grounded conductor) and equipment grounding conductor must be:", "c": ["Bonded together, same as at the service", "Kept separate, with no additional neutral-to-ground bond", "Connected only in commercial applications", "Removed entirely"], "a": 1, "exp": "Downstream of the service, neutral and ground must stay separate \u2014 a classic inspection failure point when they aren't.", "cite": "NEC 250.24(A)(5) / 408.40", "calc": false}, {"n": 51, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "A service uses 4/0 AWG copper conductors. Per Table 250.66's 1/0\u20133/0 or 4/0\u2013350 kcmil breakpoint, what is the commonly-cited minimum copper GEC size?", "c": ["2 AWG", "4 AWG", "6 AWG", "1/0 AWG"], "a": 0, "exp": "That service-conductor range corresponds to a 2 AWG copper GEC.", "cite": "NEC Table 250.66", "calc": true}, {"n": 52, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "The purpose of bonding metal water piping and structural steel is to:", "c": ["Improve water pressure", "Ensure these systems become part of the effective ground-fault current path, minimizing shock hazard", "Reduce plumbing costs", "It's optional and rarely required"], "a": 1, "exp": "Bonding metal systems keeps them from becoming energized and provides a path for fault current to clear.", "cite": "NEC 250.104", "calc": false}, {"n": 53, "sec": "Article 300 \u2014 Wiring Methods", "q": "A residential branch circuit rated 120V or less, GFCI protected, with max 20A overcurrent protection, direct-buried and not under a building, requires a minimum cover of:", "c": ["12 inches", "18 inches", "24 inches", "6 inches"], "a": 0, "exp": "This specific residential exception column of Table 300.5 allows just 12 inches of cover.", "cite": "NEC Table 300.5", "calc": true}, {"n": 54, "sec": "Article 300 \u2014 Wiring Methods", "q": "Conductors of the same circuit, including grounded and grounding conductors, must generally be installed:", "c": ["In separate raceways to reduce interference", "In the same raceway, cable, or trench (grouped together)", "At least 12 inches apart", "There's no such rule"], "a": 1, "exp": "Keeping all circuit conductors together limits inductive heating and impedance issues.", "cite": "NEC 300.3(B)", "calc": false}, {"n": 55, "sec": "Article 300 \u2014 Wiring Methods", "q": "Type NM (nonmetallic-sheathed) cable is permitted in which of the following?", "c": ["One- and two-family dwellings and multifamily dwellings meeting height requirements", "Any commercial high-rise", "Health care facility patient care areas", "Hazardous (classified) locations"], "a": 0, "exp": "NM cable's permitted uses are limited primarily to dwellings and low-rise multifamily construction.", "cite": "NEC 334.10", "calc": false}, {"n": 56, "sec": "Article 300 \u2014 Wiring Methods", "q": "Cables and raceways installed through holes bored in wood framing members must maintain what minimum distance from the nearest edge, or be protected by a steel plate?", "c": ["1/2 inch", "1 1/4 inches", "2 inches", "3 inches"], "a": 1, "exp": "The 1-1/4 inch rule protects wiring from screws and nails.", "cite": "NEC 300.4(A)", "calc": false}, {"n": 57, "sec": "Article 300 \u2014 Wiring Methods", "q": "EMT (electrical metallic tubing) is:", "c": ["A flexible nonmetallic raceway", "A thin-wall metal raceway not permitted to be threaded in the field", "Only for use underground encased in concrete", "Used exclusively for communications cabling"], "a": 1, "exp": "EMT is a rigid, thin-wall metal raceway that relies on fittings rather than field threading.", "cite": "NEC Art. 358", "calc": false}, {"n": 58, "sec": "Article 300 \u2014 Wiring Methods", "q": "The maximum total bend permitted between pull points in a conduit run is:", "c": ["180\u00b0 (2 quarter bends)", "270\u00b0 (3 quarter bends)", "360\u00b0 (4 quarter bends)", "540\u00b0 (6 quarter bends)"], "a": 2, "exp": "No more than the equivalent of four quarter bends (360\u00b0 total) is permitted between pull points.", "cite": "NEC 358.26 / 300.34", "calc": false}, {"n": 59, "sec": "Article 300 \u2014 Wiring Methods", "q": "Type MC (metal-clad) cable generally provides its own:", "c": ["GFCI protection", "Equipment grounding path (via the metal armor/sheath or an internal conductor)", "Overcurrent protection", "Voltage regulation"], "a": 1, "exp": "MC cable's armor or an internal conductor typically serves as the equipment ground.", "cite": "NEC Art. 330", "calc": false}, {"n": 60, "sec": "Article 300 \u2014 Wiring Methods", "q": "Where a cable or raceway passes within 1-1/4 inch of the front edge of a framing member and isn't otherwise protected, the NEC requires:", "c": ["A listed steel plate or sleeve of adequate thickness to prevent penetration", "Nothing extra is required", "A minimum 6-inch air gap", "Double the wire's insulation rating"], "a": 0, "exp": "A steel plate/sleeve is the standard physical protection method in this scenario.", "cite": "NEC 300.4(A)/(B)", "calc": false}, {"n": 61, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "A 4 AWG THHN copper conductor has a 90\u00b0C ampacity of 95A. Installed with 9 total current-carrying conductors in the same raceway (adjustment factor 70% per Table 310.15(C)(1)), what is the adjusted ampacity?", "c": ["66.5 A", "95 A", "47.5 A", "76 A"], "a": 0, "exp": "95A \u00d7 0.70 = 66.5A.", "cite": "NEC Table 310.15(C)(1)", "calc": true}, {"n": 62, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "A 2 AWG THHN copper conductor has a 90\u00b0C ampacity of 130A. At an ambient temperature requiring a 0.71 correction factor, what is the corrected ampacity?", "c": ["92.3 A", "130 A", "71 A", "110 A"], "a": 0, "exp": "130A \u00d7 0.71 = 92.3A.", "cite": "NEC Table 310.15(B)(1)", "calc": true}, {"n": 63, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "When both an ambient temperature correction and a conductor-count adjustment apply, the two factors are:", "c": ["Added together", "Multiplied together, applied successively to the base ampacity", "Only the larger factor is used", "They cancel each other out"], "a": 1, "exp": "Both factors are applied multiplicatively to the table ampacity, not added.", "cite": "NEC 310.15", "calc": true}, {"n": 64, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "For conductor ampacity adjustment purposes, \u201ccurrent-carrying conductors\u201d generally do NOT include:", "c": ["Ungrounded (hot) conductors", "A properly connected equipment grounding conductor, or a normally-balanced neutral in a 3-wire circuit", "All conductors regardless of function", "Any conductor larger than 10 AWG"], "a": 1, "exp": "Grounding conductors and balanced neutrals aren't counted toward the adjustment-factor conductor count.", "cite": "NEC 310.15(E)", "calc": false}, {"n": 65, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "Chapter 9, Table 1 limits conduit fill for more than two conductors to 40% of the conduit's cross-sectional area. If a conduit has an internal area of 0.500 sq in, what is the maximum area available for conductors?", "c": ["0.20 sq in", "0.40 sq in", "0.50 sq in", "0.10 sq in"], "a": 0, "exp": "0.500 sq in \u00d7 0.40 = 0.20 sq in.", "cite": "NEC Ch. 9, Table 1", "calc": true}, {"n": 66, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "Conductor insulation temperature rating (e.g., THHN 90\u00b0C) must be applied consistent with:", "c": ["The lowest temperature rating of any connected termination, equipment, or conductor in the circuit", "The ambient temperature only", "Always 90\u00b0C, regardless of terminations", "There is no such requirement"], "a": 0, "exp": "Ampacity is limited by the lowest-rated termination in the circuit, even if the conductor itself is rated higher.", "cite": "NEC 110.14(C)", "calc": false}, {"n": 67, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "Unless otherwise permitted, the default conductor material assumed in most NEC ampacity tables is:", "c": ["Aluminum", "Copper", "Copper-clad aluminum only", "Silver"], "a": 1, "exp": "Most standard ampacity tables default to copper columns unless aluminum/copper-clad aluminum is specified.", "cite": "NEC Table 310.16", "calc": false}, {"n": 68, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "A single-phase circuit uses 12 AWG copper with a round-trip resistance of 3.2 ohms per 1,000 ft, over a one-way run of 100 ft (200 ft round trip), carrying 20A. What is the approximate voltage drop?", "c": ["12.8 V", "6.4 V", "20 V", "3.2 V"], "a": 0, "exp": "R = 3.2 \u03a9/1000ft \u00d7 200ft = 0.64\u03a9. VD = I\u00d7R = 20A \u00d7 0.64\u03a9 = 12.8V.", "cite": "Voltage drop calculation, informational per 210.19(A) Note 4", "calc": true}, {"n": 69, "sec": "Article 314 \u2014 Boxes", "q": "Each 12 AWG conductor counts as 2.25 cu in of box fill volume. A box contains 6 current-carrying 12 AWG conductors with no other fill items. What is the minimum required box volume?", "c": ["13.5 cu in", "12 cu in", "9 cu in", "18 cu in"], "a": 0, "exp": "6 \u00d7 2.25 cu in = 13.5 cu in.", "cite": "NEC Table 314.16(B)", "calc": true}, {"n": 70, "sec": "Article 314 \u2014 Boxes", "q": "All equipment grounding conductors in a box together count as:", "c": ["Zero volume allowance", "One single volume allowance, based on the largest EGC in the box", "One allowance per grounding conductor", "Double the largest conductor's allowance"], "a": 1, "exp": "No matter how many EGCs are present, they count once, sized to the largest one.", "cite": "NEC 314.16(B)(5)", "calc": false}, {"n": 71, "sec": "Article 314 \u2014 Boxes", "q": "A device (e.g., a switch or receptacle) yoke requires a volume allowance equal to:", "c": ["Zero", "Double the volume allowance of the largest conductor connected to it", "Half the volume allowance of the smallest conductor", "A fixed 4 cu in regardless of wire size"], "a": 1, "exp": "Each device yoke counts as two conductors' worth of volume, based on the largest conductor connected to it.", "cite": "NEC 314.16(B)(4)", "calc": false}, {"n": 72, "sec": "Article 314 \u2014 Boxes", "q": "A device box contains 4 current-carrying 14 AWG conductors (2.0 cu in each), one EGC allowance (2.0 cu in), and one device yoke (2 \u00d7 2.0 cu in = 4.0 cu in). What is the total required box volume?", "c": ["14.0 cu in", "12.0 cu in", "10.0 cu in", "16.0 cu in"], "a": 0, "exp": "(4 \u00d7 2.0) + 2.0 + 4.0 = 8.0 + 2.0 + 4.0 = 14.0 cu in.", "cite": "NEC Table 314.16(B)", "calc": true}, {"n": 73, "sec": "Article 314 \u2014 Boxes", "q": "A conductor that runs through a box without being spliced or terminated in that box:", "c": ["Does not count toward box fill", "Still counts as one conductor toward box fill volume", "Counts as two conductors", "Is prohibited by code"], "a": 1, "exp": "A common mistake: pass-through conductors still count toward fill, they aren't exempt.", "cite": "NEC 314.16(B)(1)", "calc": false}, {"n": 74, "sec": "Article 404/406 \u2014 Switches & Receptacles", "q": "Switches controlling lighting loads generally require a grounded (neutral) conductor to be:", "c": ["Never provided", "Provided at the switch location, with limited exceptions", "Only required in commercial buildings", "Optional at electrician's discretion"], "a": 1, "exp": "A neutral is generally required at switch locations to support electronic/smart devices, subject to specific exceptions.", "cite": "NEC 404.2(C)", "calc": false}, {"n": 75, "sec": "Article 404/406 \u2014 Switches & Receptacles", "q": "Tamper-resistant receptacles are required in dwelling units:", "c": ["Only in garages", "At virtually all 125V, 15/20A receptacle locations specified by the code, not just child-accessible rooms", "Only at outdoor receptacles", "They are not required in dwellings"], "a": 1, "exp": "The tamper-resistant requirement is broad, covering most dwelling receptacle locations.", "cite": "NEC 406.12", "calc": false}, {"n": 76, "sec": "Article 404/406 \u2014 Switches & Receptacles", "q": "Receptacles installed in wet locations must be within an enclosure that is weatherproof:", "c": ["Only when the receptacle is not in use", "Whether or not a cord is plugged in (in-use cover), for 15/20A 125\u2013250V receptacles in wet locations", "Never required if GFCI protected", "Only for 240V receptacles"], "a": 1, "exp": "In-use covers are required so the receptacle stays weatherproof even with a cord connected.", "cite": "NEC 406.9(B)", "calc": false}, {"n": 77, "sec": "Article 408 \u2014 Panelboards", "q": "Panelboards must be protected by an overcurrent device with a rating not greater than the panelboard's:", "c": ["Bus/ampere rating", "Physical size", "Manufacturer's warranty", "Voltage class only, ampacity is irrelevant"], "a": 0, "exp": "The panelboard's bus rating sets the ceiling for its supply overcurrent protection.", "cite": "NEC 408.36", "calc": false}, {"n": 78, "sec": "Article 408 \u2014 Panelboards", "q": "Panelboard circuit directories/circuit index must:", "c": ["Be optional", "Accurately identify the clear, evident purpose of each circuit, legibly marked", "Only be required in commercial occupancies", "Be handwritten in pencil only"], "a": 1, "exp": "A legible, accurate directory is required at every panelboard.", "cite": "NEC 408.4(A)", "calc": false}, {"n": 79, "sec": "Article 410 \u2014 Luminaires", "q": "Luminaires (fixtures) installed over combustible material must be:", "c": ["Wired with any conductor type", "Constructed/installed to prevent ignition of the combustible material, per manufacturer instructions/listing", "Prohibited entirely", "Only used with incandescent lamps"], "a": 1, "exp": "Fixtures over combustibles must be listed/installed to avoid an ignition hazard.", "cite": "NEC 410.16", "calc": false}, {"n": 80, "sec": "Article 410 \u2014 Luminaires", "q": "Recessed luminaires marked \u201cType IC\u201d are rated for:", "c": ["Direct contact with insulation", "Use only in wet locations", "Use only in hazardous locations", "Outdoor use exclusively"], "a": 0, "exp": "\u201cIC\u201d = insulation contact rated, permitting direct contact with thermal insulation.", "cite": "NEC 410.116", "calc": false}, {"n": 81, "sec": "Article 410 \u2014 Luminaires", "q": "Clearance requirements for non-IC-rated recessed luminaires from insulation are addressed in:", "c": ["410.116", "220.12", "250.66", "300.5"], "a": 0, "exp": "410.116 covers required clearances for non-IC-rated recessed fixtures.", "cite": "NEC 410.116", "calc": false}, {"n": 82, "sec": "Article 422 \u2014 Appliances", "q": "Appliances must have overcurrent protection sized:", "c": ["Per the manufacturer's marked rating/nameplate, subject to code limits", "Always at 20A regardless of appliance", "At the installer's discretion with no limit", "Overcurrent protection is not required for appliances"], "a": 0, "exp": "Appliance overcurrent protection follows the nameplate marking within code-permitted limits.", "cite": "NEC 422.11", "calc": false}, {"n": 83, "sec": "Article 422 \u2014 Appliances", "q": "A permanently connected appliance rated over 1/8 hp or 300 VA requires a disconnecting means that is:", "c": ["Optional", "Capable of disconnecting the appliance from all ungrounded conductors", "Only required for gas appliances", "Not addressed by the NEC"], "a": 1, "exp": "A disconnect capable of isolating all ungrounded conductors is required above this small threshold.", "cite": "NEC 422.30/422.31", "calc": false}, {"n": 84, "sec": "Article 430 \u2014 Motors", "q": "Motor branch-circuit conductor ampacity, disconnect size, and similar values are based on:", "c": ["The motor's nameplate current only", "The full-load current (FLC) values from NEC Tables 430.247\u2013430.250, not the nameplate current", "The locked-rotor current only", "An arbitrary 80% of nameplate"], "a": 1, "exp": "Classic exam trap: sizing uses the code Table FLC, not the nameplate current (nameplate is used for overload settings instead).", "cite": "NEC 430.6(A)", "calc": false}, {"n": 85, "sec": "Article 430 \u2014 Motors", "q": "A 10-hp, 230V, single-phase motor has a Table 430.248 FLC of 50A. What is the minimum branch-circuit conductor ampacity (125% of FLC)?", "c": ["50 A", "62.5 A", "75 A", "100 A"], "a": 1, "exp": "50A \u00d7 1.25 = 62.5A.", "cite": "NEC 430.22", "calc": true}, {"n": 86, "sec": "Article 430 \u2014 Motors", "q": "Using the same 50A-FLC motor and the maximum standard inverse-time breaker setting of 250% of FLC, what is the maximum standard OCPD size?", "c": ["100 A", "110 A", "125 A", "150 A"], "a": 2, "exp": "50A \u00d7 2.50 = 125A, which is itself a standard breaker size.", "cite": "NEC 430.52 / Table 430.52", "calc": true}, {"n": 87, "sec": "Article 430 \u2014 Motors", "q": "A continuous-duty motor over 1 hp with a marked service factor of 1.15 or greater generally requires separate overload protection sized at what percentage of nameplate current?", "c": ["100%", "115%", "125%", "140%"], "a": 2, "exp": "Motors with SF \u2265 1.15 (or temp rise \u226440\u00b0C) get overload protection at 125% of nameplate current; other motors use 115%.", "cite": "NEC 430.32(A)(1)", "calc": true}, {"n": 88, "sec": "Article 430 \u2014 Motors", "q": "Where a feeder supplies several motors, the feeder conductor ampacity must be at least:", "c": ["100% of the sum of all FLCs", "125% of the largest motor FLC, plus 100% of the FLC of all other motors in the group", "150% of the largest motor only", "Simply the sum of nameplate currents"], "a": 1, "exp": "The largest motor gets the 125% factor; all others are counted at 100% of their FLC.", "cite": "NEC 430.24", "calc": true}, {"n": 89, "sec": "Article 430 \u2014 Motors", "q": "A motor disconnecting means must be capable of being locked in the open position and located:", "c": ["Anywhere in the building", "Within sight of the motor and driven machinery, or otherwise meeting specific exceptions", "Only in the main electrical room", "Not required for motors under 1 hp"], "a": 1, "exp": "The default rule requires within-sight location unless a specific exception (like a lockable disconnect) applies.", "cite": "NEC 430.102", "calc": false}, {"n": 90, "sec": "Article 430 \u2014 Motors", "q": "A 3-phase, 460V, 25-hp motor has a Table 430.250 FLC of 34A. What is the minimum branch-circuit conductor ampacity at 125%?", "c": ["34 A", "42.5 A", "51 A", "68 A"], "a": 1, "exp": "34A \u00d7 1.25 = 42.5A.", "cite": "NEC 430.22", "calc": true}, {"n": 91, "sec": "Article 430 \u2014 Motors", "q": "Motor control circuit conductors that leave the control equipment enclosure and are otherwise unprotected must have overcurrent protection per:", "c": ["430.72", "220.12", "250.66", "300.5"], "a": 0, "exp": "430.72 governs overcurrent protection of motor control circuits.", "cite": "NEC 430.72", "calc": false}, {"n": 92, "sec": "Article 450 \u2014 Transformers", "q": "Dry-type transformers over 1000V generally require:", "c": ["No overcurrent protection", "Primary (and sometimes secondary) overcurrent protection sized per Table 450.3", "GFCI protection only", "A dedicated disconnecting means only, no overcurrent protection"], "a": 1, "exp": "Table 450.3 sets the maximum primary/secondary protection percentages for transformers.", "cite": "NEC 450.3", "calc": false}, {"n": 93, "sec": "Article 450 \u2014 Transformers", "q": "Transformer vaults, where required, must be constructed using:", "c": ["Wood framing only", "Fire-resistant construction suitable for the installation", "Any material the installer chooses", "No specific construction requirements exist"], "a": 1, "exp": "Vault construction must meet fire-resistance requirements appropriate to the installation.", "cite": "NEC 450.42", "calc": false}, {"n": 94, "sec": "Article 450 \u2014 Transformers", "q": "A single-phase dry-type transformer has a rated primary current of 40A. Per the 125% primary-only protection rule (rounded to the next standard OCPD size), what is the maximum primary protection?", "c": ["40 A", "45 A", "50 A", "60 A"], "a": 2, "exp": "40A \u00d7 1.25 = 50A, which is itself a standard breaker/fuse size.", "cite": "NEC Table 450.3(B)", "calc": true}, {"n": 95, "sec": "Article 445 \u2014 Generators", "q": "A generator's required nameplate must give the manufacturer's name, rated frequency, number of phases, and:", "c": ["The purchase price", "Rated voltage, rated current, and other electrical characteristics", "Only the physical dimensions", "The installer's license number"], "a": 1, "exp": "445.11 requires key electrical nameplate data for identification and sizing.", "cite": "NEC 445.11", "calc": false}, {"n": 96, "sec": "Article 445 \u2014 Generators", "q": "Portable generators used to supply a structure's wiring through a transfer switch must not be connected in a way that:", "c": ["Improves grounding", "Back-feeds the utility system, creating a hazard for utility workers", "Reduces fuel efficiency", "Increases voltage"], "a": 1, "exp": "Transfer equipment exists specifically to prevent hazardous back-feed onto utility lines.", "cite": "NEC 445.18 / transfer equipment requirements", "calc": false}, {"n": 97, "sec": "Article 500 \u2014 Hazardous Locations", "q": "Class I hazardous locations are areas where:", "c": ["Combustible dust is present", "Flammable gases or vapors may be present in sufficient quantities to produce explosive or ignitable mixtures", "Only high-voltage equipment is installed", "Only wet locations exist"], "a": 1, "exp": "Class I locations are defined by flammable gas/vapor hazards (Class II covers combustible dust).", "cite": "NEC Art. 500", "calc": false}, {"n": 98, "sec": "Article 517 \u2014 Health Care Facilities", "q": "In health care facility patient care spaces, branch circuits generally require an equipment grounding means consisting of:", "c": ["No grounding required", "An insulated copper equipment grounding conductor installed with the branch-circuit conductors, as a redundant grounding path", "A single ground rod at the building exterior only", "Grounding is optional based on room size"], "a": 1, "exp": "Patient care spaces require a redundant, insulated copper EGC path beyond the normal raceway grounding.", "cite": "NEC 517.13", "calc": false}, {"n": 99, "sec": "Article 700 \u2014 Emergency Systems", "q": "Emergency systems must be arranged so that, upon failure of the normal supply, they:", "c": ["Remain off until manually restarted by a licensed electrician", "Automatically restore power to designated emergency loads within a specified time", "Are not required to restore power automatically", "Only function during business hours"], "a": 1, "exp": "Automatic restoration within a defined time is the defining feature of an emergency system.", "cite": "NEC Art. 700", "calc": false}, {"n": 100, "sec": "Article 690 \u2014 Solar Photovoltaic Systems", "q": "Photovoltaic system disconnecting means must be:", "c": ["Optional for residential systems", "Provided to disconnect the PV system from all other systems, and readily accessible", "Located only inside the building", "Not required if the system is under 5kW"], "a": 1, "exp": "A readily accessible disconnect isolating the PV system from all other systems is required regardless of size.", "cite": "NEC 690.13", "calc": false}];
+
+  var PARTS = [
+    {lo:1, hi:25, name:"Part I", color:"#0033cc", title:"Foundations, Branch Circuits & Load Calculations"},
+    {lo:26, hi:50, name:"Part II", color:"#108a76", title:"Services, Overcurrent Protection & Grounding"},
+    {lo:51, hi:75, name:"Part III", color:"#e09e14", title:"Wiring Methods, Conductors & Boxes"},
+    {lo:76, hi:100, name:"Part IV", color:"#f21824", title:"Devices, Motors, Equipment & Special Occupancies"}
+  ];
+
+  function partFor(num) {
+    for (var i = 0; i < PARTS.length; i++) {
+      if (num >= PARTS[i].lo && num <= PARTS[i].hi) return i;
+    }
+    return 0;
+  }
+
+  var STATE_KEY = "smartElectric_nec100_state_v1";
+  var HISTORY_KEY = "smartElectric_nec100_history_v1";
+
+  var answers = new Array(100).fill(null);
+  var flagged = new Array(100).fill(false);
+  var activeIndices = range(0, 100);   // question indices (0-based) currently in play
+  var idx = 0;                          // position within activeIndices
+  var submitted = false;
+  var retakeMode = false;
+  var totalSeconds = 3 * 3600;
+  var timerInterval = null;
+  var hasStorage = true;
+  try { localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); } catch (e) { hasStorage = false; }
+
+  function range(a, b) { var r = []; for (var i = a; i < b; i++) r.push(i); return r; }
+
+  function currentQNum() { return activeIndices[idx]; }
+  function currentQ() { return QUESTIONS[activeIndices[idx]]; }
+
+  function saveState() {
+    if (!hasStorage || submitted) return;
+    try {
+      localStorage.setItem(STATE_KEY, JSON.stringify({
+        answers: answers, flagged: flagged, idx: idx, totalSeconds: totalSeconds,
+        activeIndices: activeIndices, retakeMode: retakeMode, savedAt: Date.now()
+      }));
+    } catch (e) {}
+  }
+
+  function clearState() {
+    if (!hasStorage) return;
+    try { localStorage.removeItem(STATE_KEY); } catch (e) {}
+  }
+
+  function loadState() {
+    if (!hasStorage) return null;
+    try {
+      var raw = localStorage.getItem(STATE_KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || !Array.isArray(s.answers) || s.answers.length !== 100) return null;
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function loadHistory() {
+    if (!hasStorage) return [];
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+
+  function saveHistoryEntry(entry) {
+    if (!hasStorage) return;
+    try {
+      var arr = loadHistory();
+      arr.push(entry);
+      while (arr.length > 20) arr.shift();
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+    } catch (e) {}
+  }
+
+  function fmtTime(s) {
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    return h + ":" + pad(m) + ":" + pad(sec);
+  }
+
+  function startTimer() {
+    if (retakeMode) return; // practice mode is untimed
+    timerInterval = setInterval(function() {
+      totalSeconds--;
+      if (totalSeconds <= 0) {
+        totalSeconds = 0;
+        document.getElementById("timerDisplay").textContent = "0:00:00";
+        clearInterval(timerInterval);
+        doSubmit();
+        return;
+      }
+      document.getElementById("timerDisplay").textContent = fmtTime(totalSeconds);
+      if (totalSeconds <= 300) {
+        document.getElementById("timerDisplay").classList.add("low");
+      }
+      if (totalSeconds % 5 === 0) saveState();
+    }, 1000);
+  }
+
+  var letters = ["A", "B", "C", "D"];
+
+  // ---------------- Voice read-aloud (Web Speech API) ----------------
+  var synth = ("speechSynthesis" in window) ? window.speechSynthesis : null;
+  var voiceEnabled = true;
+  var chosenVoice = null;
+
+  // Preference order: British/Irish/Australian named voices first (calmer,
+  // more "European" sound per user preference), then any genuinely
+  // high-quality "Enhanced"/"Premium" voice, then a curated named list,
+  // then any local English voice.
+  var europeanVoiceNames = [
+    "Daniel", "Daniel (Enhanced)", "Kate", "Kate (Enhanced)",
+    "Serena", "Serena (Enhanced)", "Oliver", "Oliver (Enhanced)",
+    "Arthur", "Arthur (Enhanced)", "Martha", "Martha (Enhanced)",
+    "Stephanie", "Malcolm", "Moira", "Moira (Enhanced)",
+    "Karen", "Karen (Enhanced)", "Lee", "Lee (Enhanced)", "Gordon"
+  ];
+  var preferredVoiceNames = [
+    "Ava (Premium)", "Ava (Enhanced)", "Zoe (Premium)", "Zoe (Enhanced)",
+    "Nicky (Premium)", "Nicky (Enhanced)", "Samantha (Enhanced)",
+    "Allison (Enhanced)", "Susan (Enhanced)", "Samantha", "Ava", "Allison"
+  ];
+  var userPickedVoice = false;
+
+  function pickBestVoice() {
+    if (!synth) return null;
+    var voices = synth.getVoices() || [];
+    if (!voices.length) return null;
+
+    // 1) A named British/Irish/Australian voice (en-GB / en-IE / en-AU).
+    for (var i = 0; i < europeanVoiceNames.length; i++) {
+      for (var j = 0; j < voices.length; j++) {
+        if (voices[j].name === europeanVoiceNames[i]) return voices[j];
+      }
+    }
+    // 2) Any voice at all whose locale is GB/IE/AU/ZA.
+    var euro = voices.find(function(v) { return /^en-(GB|IE|AU|ZA)/i.test(v.lang); });
+    if (euro) return euro;
+
+    // 3) Any voice explicitly marked as a high-quality "Enhanced"/"Premium"
+    //    variant — these use much smoother, less robotic synthesis.
+    var upgraded = voices.filter(function(v) {
+      return /^en/i.test(v.lang) && /enhanced|premium|neural|natural/i.test(v.name);
+    });
+    if (upgraded.length) return upgraded[0];
+
+    // 4) A curated named list of the calmer-sounding default voices.
+    for (var k = 0; k < preferredVoiceNames.length; k++) {
+      for (var m = 0; m < voices.length; m++) {
+        if (voices[m].name === preferredVoiceNames[k]) return voices[m];
+      }
+    }
+    // 5) Any local en-US voice, then any English voice, then whatever's first.
+    for (var p = 0; p < voices.length; p++) {
+      if (voices[p].lang === "en-US" && voices[p].localService) return voices[p];
+    }
+    for (var q2 = 0; q2 < voices.length; q2++) {
+      if (voices[q2].lang && voices[q2].lang.indexOf("en") === 0) return voices[q2];
+    }
+    return voices[0];
+  }
+
+  function populateVoiceDropdown() {
+    var sel = document.getElementById("voiceSelect");
+    if (!sel || !synth) return;
+    var voices = synth.getVoices() || [];
+    var english = voices.filter(function(v) { return /^en/i.test(v.lang); });
+    var rest = voices.filter(function(v) { return !/^en/i.test(v.lang); });
+    // English voices first, GB/IE/AU/ZA accents bubbled to the top.
+    english.sort(function(a, b) {
+      var aE = /^en-(GB|IE|AU|ZA)/i.test(a.lang) ? 0 : 1;
+      var bE = /^en-(GB|IE|AU|ZA)/i.test(b.lang) ? 0 : 1;
+      if (aE !== bE) return aE - bE;
+      return a.name.localeCompare(b.name);
+    });
+    var ordered = english.concat(rest);
+    if (!ordered.length) return;
+
+    var prevValue = sel.value;
+    sel.innerHTML = "";
+    ordered.forEach(function(v) {
+      var opt = document.createElement("option");
+      opt.value = v.name;
+      opt.textContent = v.name + " — " + v.lang;
+      sel.appendChild(opt);
+    });
+
+    if (chosenVoice) sel.value = chosenVoice.name;
+    if (sel.value === "" && prevValue) sel.value = prevValue;
+  }
+
+  if (synth) {
+    chosenVoice = pickBestVoice();
+    populateVoiceDropdown();
+    synth.addEventListener("voiceschanged", function() {
+      if (!userPickedVoice) chosenVoice = pickBestVoice();
+      populateVoiceDropdown();
+    });
+  } else {
+    var vs = document.getElementById("voiceSettings");
+    if (vs) vs.style.display = "none";
+  }
+
+  function stopSpeech() {
+    if (synth) synth.cancel();
+  }
+
+  function buildSpeechParts(q) {
+    var parts = ["Question.", q.q + "...", "Answer."];
+    q.c.forEach(function(choiceText, i) {
+      parts.push("Is it " + letters[i] + "?");
+      parts.push(choiceText + "...");
+    });
+    return parts;
+  }
+
+  function speakParts(parts) {
+    if (!synth) return;
+    synth.cancel();
+    if (!chosenVoice) chosenVoice = pickBestVoice();
+    parts.forEach(function(text) {
+      var utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.87;
+      utter.pitch = 0.98;
+      utter.volume = 0.95;
+      if (chosenVoice) {
+        utter.voice = chosenVoice;
+        utter.lang = chosenVoice.lang;
+      } else {
+        utter.lang = "en-US";
+      }
+      synth.speak(utter);
+    });
+  }
+
+  function speakCurrentQuestion() {
+    if (!voiceEnabled || !synth) return;
+    speakParts(buildSpeechParts(currentQ()));
+  }
+
+  if (!synth) {
+    var vb = document.getElementById("voiceToggleBtn");
+    if (vb) vb.style.display = "none";
+  }
+
+  function renderQuestion() {
+    var qNum = currentQNum();
+    var q = currentQ();
+    var partIdx = partFor(q.n);
+    var part = PARTS[partIdx];
+
+    document.getElementById("progressLabel").textContent = retakeMode ?
+      ("Retake " + (idx+1) + " of " + activeIndices.length + " — Q" + q.n) :
+      ("Question " + q.n + " of 100");
+    document.getElementById("partLabel").textContent = part.name;
+    document.getElementById("progressBar").style.width = ((idx+1) / activeIndices.length * 100) + "%";
+    document.getElementById("progressBar").style.background = part.color;
+    document.getElementById("qcard").style.borderTopColor = part.color;
+    document.getElementById("qsection").textContent = q.sec;
+    document.getElementById("qsection").style.color = part.color;
+    document.getElementById("qtext").textContent = q.q;
+
+    var tagWrap = document.getElementById("calcTagWrap");
+    tagWrap.innerHTML = q.calc ? '<div class="calc-tag">CALCULATION</div>' : '';
+
+    var flagBtn = document.getElementById("flagBtn");
+    flagBtn.classList.toggle("flagged", !!flagged[qNum]);
+    flagBtn.textContent = flagged[qNum] ? "★ Flagged" : "☆ Flag";
+
+    var wrap = document.getElementById("choicesWrap");
+    wrap.innerHTML = "";
+    q.c.forEach(function(choiceText, i) {
+      var div = document.createElement("div");
+      div.className = "choice" + (answers[qNum] === i ? " selected" : "");
+      div.innerHTML = '<div class="letter">' + letters[i] + '</div><div class="ctext"></div>';
+      div.querySelector(".ctext").textContent = choiceText;
+      div.addEventListener("click", function() {
+        answers[qNum] = i;
+        renderQuestion();
+        renderMap();
+        saveState();
+      });
+      wrap.appendChild(div);
+    });
+
+    document.getElementById("prevBtn").disabled = (idx === 0);
+    document.getElementById("nextBtn").disabled = (idx === activeIndices.length - 1);
+  }
+
+  function renderMap() {
+    var mapEl = document.getElementById("qmap");
+    mapEl.innerHTML = "";
+
+    function makeBtn(qNum, positionInActive) {
+      var part = PARTS[partFor(qNum)];
+      var btn = document.createElement("button");
+      var isAnswered = answers[qNum-1] !== null;
+      btn.className = "qmap-btn" +
+        (isAnswered ? " answered" : "") +
+        (positionInActive === idx ? " current" : "") +
+        (flagged[qNum-1] ? " flagged" : "");
+      if (isAnswered) btn.style.background = part.color;
+      btn.textContent = qNum;
+      btn.title = flagged[qNum-1] ? "Question " + qNum + " (flagged)" : "Question " + qNum;
+      btn.addEventListener("click", function() {
+        idx = positionInActive;
+        renderQuestion();
+        renderMap();
+        speakCurrentQuestion();
+        window.scrollTo({top: 0, behavior: "smooth"});
+      });
+      return btn;
+    }
+
+    if (retakeMode) {
+      var label = document.createElement("div");
+      label.className = "qmap-part";
+      label.textContent = "Retake — " + activeIndices.length + " missed question(s)";
+      mapEl.appendChild(label);
+      var grid = document.createElement("div");
+      grid.className = "qmap-grid";
+      activeIndices.forEach(function(qi, pos) {
+        grid.appendChild(makeBtn(qi + 1, pos));
+      });
+      mapEl.appendChild(grid);
+      return;
+    }
+
+    PARTS.forEach(function(part) {
+      var plabel = document.createElement("div");
+      plabel.className = "qmap-part";
+      plabel.textContent = part.name + " — Q" + part.lo + "–" + part.hi;
+      mapEl.appendChild(plabel);
+      var grid = document.createElement("div");
+      grid.className = "qmap-grid";
+      for (var n = part.lo; n <= part.hi; n++) {
+        grid.appendChild(makeBtn(n, n - 1));
+      }
+      mapEl.appendChild(grid);
+    });
+  }
+
+  document.getElementById("prevBtn").addEventListener("click", function() {
+    if (idx > 0) { idx--; renderQuestion(); renderMap(); speakCurrentQuestion(); saveState(); window.scrollTo({top:0, behavior:"smooth"}); }
+  });
+  document.getElementById("nextBtn").addEventListener("click", function() {
+    if (idx < activeIndices.length - 1) { idx++; renderQuestion(); renderMap(); speakCurrentQuestion(); saveState(); window.scrollTo({top:0, behavior:"smooth"}); }
+  });
+  document.getElementById("flagBtn").addEventListener("click", function() {
+    var qNum = currentQNum();
+    flagged[qNum] = !flagged[qNum];
+    renderQuestion();
+    renderMap();
+    saveState();
+  });
+  document.getElementById("voiceToggleBtn").addEventListener("click", function() {
+    voiceEnabled = !voiceEnabled;
+    this.textContent = voiceEnabled ? "🔊 Voice On" : "🔇 Voice Off";
+    this.classList.toggle("muted", !voiceEnabled);
+    if (!voiceEnabled) { stopSpeech(); } else { speakCurrentQuestion(); }
+  });
+  document.getElementById("replayBtn").addEventListener("click", function() {
+    speakParts(buildSpeechParts(currentQ()));
+  });
+  if (synth) {
+    document.getElementById("voiceSelect").addEventListener("change", function() {
+      var val = this.value;
+      var voices = synth.getVoices() || [];
+      var match = voices.find(function(v) { return v.name === val; });
+      if (match) {
+        chosenVoice = match;
+        userPickedVoice = true;
+        speakParts(["This is what I sound like now."]);
+      }
+    });
+    document.getElementById("testVoiceBtn").addEventListener("click", function() {
+      speakParts(["This is what I sound like. Question one. What is the primary purpose of the N E C? A, the practical safeguarding of persons and property."]);
+    });
+  }
+  document.getElementById("mapToggle").addEventListener("click", function() {
+    var mapEl = document.getElementById("qmap");
+    mapEl.classList.toggle("open");
+    this.textContent = mapEl.classList.contains("open") ? "Hide question map ↑" : "Jump to any question ↓";
+  });
+
+  function computeScores() {
+    var correctCount = 0;
+    var partScores = PARTS.map(function(){ return {correct:0, total:0}; });
+    QUESTIONS.forEach(function(q, i) {
+      var pIdx = partFor(q.n);
+      partScores[pIdx].total++;
+      if (answers[i] === q.a) {
+        correctCount++;
+        partScores[pIdx].correct++;
+      }
+    });
+    return { correctCount: correctCount, partScores: partScores };
+  }
+
+  function csvEscape(val) {
+    var s = String(val === null || val === undefined ? "" : val);
+    var hasComma = s.indexOf(",") !== -1;
+    var hasQuote = s.indexOf('"') !== -1;
+    var hasBreak = s.indexOf(String.fromCharCode(10)) !== -1 || s.indexOf(String.fromCharCode(13)) !== -1;
+    if (hasComma || hasQuote || hasBreak) {
+      s = '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  function statusForPct(pct) {
+    if (pct >= 80) return "Strong";
+    if (pct >= 60) return "Needs Review";
+    return "Weak — Restudy";
+  }
+
+  function buildStudyReportRows() {
+    var letters = ["A", "B", "C", "D"];
+    var secStats = {};
+    var secOrder = [];
+    var calcCorrect = 0, calcTotal = 0;
+    var missed = [];
+    var correctTotal = 0;
+
+    QUESTIONS.forEach(function(q, i) {
+      if (!secStats[q.sec]) { secStats[q.sec] = { correct: 0, total: 0 }; secOrder.push(q.sec); }
+      secStats[q.sec].total++;
+      var given = answers[i];
+      var isCorrect = given === q.a;
+      if (isCorrect) { secStats[q.sec].correct++; correctTotal++; }
+      if (q.calc) {
+        calcTotal++;
+        if (isCorrect) calcCorrect++;
+      }
+      if (!isCorrect) {
+        missed.push({
+          n: q.n,
+          sec: q.sec,
+          your: (given === null || given === undefined) ? "(no answer given)" : letters[given] + " — " + q.c[given],
+          correct: letters[q.a] + " — " + q.c[q.a],
+          cite: q.cite,
+          exp: q.exp
+        });
+      }
+    });
+
+    var sortedSecs = secOrder.slice().sort(function(a, b) {
+      var pa = secStats[a].correct / secStats[a].total;
+      var pb = secStats[b].correct / secStats[b].total;
+      return pa - pb;
+    });
+
+    var rows = [];
+    rows.push(["Smart Electric — NEC 100-Question Exam — Study Report"]);
+    rows.push(["Generated", new Date().toLocaleString()]);
+    rows.push(["Overall Score", correctTotal + " / 100 (" + correctTotal + "%)"]);
+    rows.push([]);
+    rows.push(["STUDY FOCUS BY NEC ARTICLE (weakest area listed first)"]);
+    rows.push(["NEC Article / Section", "Correct", "Total", "Percent", "Status"]);
+    sortedSecs.forEach(function(s) {
+      var st = secStats[s];
+      var pct = Math.round((st.correct / st.total) * 100);
+      rows.push([s, st.correct, st.total, pct + "%", statusForPct(pct)]);
+    });
+    rows.push([]);
+    rows.push(["CALCULATION QUESTIONS PERFORMANCE"]);
+    rows.push(["Correct", "Total", "Percent"]);
+    rows.push([calcCorrect, calcTotal, calcTotal ? Math.round((calcCorrect / calcTotal) * 100) + "%" : "n/a"]);
+    rows.push([]);
+    rows.push(["MISSED QUESTIONS — REVIEW THESE"]);
+    rows.push(["Q#", "NEC Article / Section", "Your Answer", "Correct Answer", "NEC Citation", "Explanation"]);
+    if (!missed.length) {
+      rows.push(["Perfect score — no missed questions."]);
+    } else {
+      missed.forEach(function(m) {
+        rows.push([m.n, m.sec, m.your, m.correct, m.cite, m.exp]);
+      });
+    }
+    return rows;
+  }
+
+  function downloadStudyReport() {
+    var rows = buildStudyReportRows();
+    var lineBreak = String.fromCharCode(13, 10);
+    var csv = rows.map(function(r) { return r.map(csvEscape).join(","); }).join(lineBreak);
+    var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
+    a.href = url;
+    a.download = "NEC_Study_Report_" + stamp + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  document.getElementById("reportBtn").addEventListener("click", downloadStudyReport);
+
+  function drawChart(partScores) {
+    var canvas = document.getElementById("perfChart");
+    if (!canvas || !canvas.getContext) return;
+    var dpr = window.devicePixelRatio || 1;
+    var w = canvas.clientWidth || 300, h = 140;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+
+    var barW = (w / partScores.length) * 0.5;
+    var gap = (w / partScores.length) * 0.5;
+    var baseY = h - 24;
+    var maxBarH = h - 46;
+
+    partScores.forEach(function(ps, i) {
+      var pct = ps.total ? ps.correct / ps.total : 0;
+      var barH = Math.max(2, pct * maxBarH);
+      var cx = gap/2 + i * (barW + gap) + barW/2;
+      var x = cx - barW/2;
+      var y = baseY - barH;
+
+      ctx.fillStyle = "#e7e9f0";
+      ctx.fillRect(x, baseY - maxBarH, barW, maxBarH);
+
+      ctx.fillStyle = PARTS[i].color;
+      ctx.fillRect(x, y, barW, barH);
+
+      ctx.fillStyle = "#1a1a22";
+      ctx.font = "700 11px -apple-system, Helvetica, Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(Math.round(pct*100) + "%", cx, y - 6);
+
+      ctx.fillStyle = "#6b6b72";
+      ctx.font = "700 10px -apple-system, Helvetica, Arial, sans-serif";
+      ctx.fillText(PARTS[i].name, cx, h - 6);
+    });
+  }
+
+  function renderHistory() {
+    var hist = loadHistory();
+    var box = document.getElementById("historyBox");
+    var list = document.getElementById("historyList");
+    if (!hist.length) { box.style.display = "none"; return; }
+    box.style.display = "block";
+    list.innerHTML = "";
+    hist.slice().reverse().slice(0, 8).forEach(function(entry) {
+      var row = document.createElement("div");
+      row.className = "history-row";
+      var d = new Date(entry.date);
+      var dateStr = (d.getMonth()+1) + "/" + d.getDate() + "/" + (d.getFullYear()%100) + " " +
+        d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+      row.innerHTML = '<span class="hdate"></span><span class="hscore"></span>';
+      row.querySelector(".hdate").textContent = dateStr;
+      row.querySelector(".hscore").textContent = entry.correct + "/100 (" + entry.pct + "%)";
+      list.appendChild(row);
+    });
+  }
+
+  function showResultsFor(correctCount, partScores, headingText) {
+    var pct = Math.round(correctCount / 100 * 100);
+    document.getElementById("resultsHeading").textContent = headingText || "YOUR SCORE";
+    document.getElementById("scoreBig").textContent = pct + "%";
+    document.getElementById("scoreDetail").textContent = correctCount + " of 100 correct" +
+      (pct >= 70 ? " — passing range" : " — below typical 70% passing threshold");
+
+    var pb = document.getElementById("partBreakdown");
+    pb.innerHTML = "";
+    partScores.forEach(function(ps, i) {
+      var part = PARTS[i];
+      var div = document.createElement("div");
+      div.className = "part-stat";
+      div.innerHTML = '<div class="pn">' + part.name + '</div><div class="pv" style="color:' + part.color + '">' +
+        ps.correct + ' / ' + ps.total + '</div>';
+      pb.appendChild(div);
+    });
+
+    drawChart(partScores);
+    renderHistory();
+
+    var missedCount = 100 - correctCount;
+    var retakeBtn = document.getElementById("retakeBtn");
+    retakeBtn.disabled = missedCount === 0;
+    retakeBtn.textContent = missedCount === 0 ? "Perfect score — nothing to retake" :
+      "Retake " + missedCount + " Missed Question" + (missedCount === 1 ? "" : "s") + " Only";
+
+    document.getElementById("examView").style.display = "none";
+    document.getElementById("resultsView").style.display = "block";
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function doSubmit() {
+    if (submitted) return;
+    var unanswered = answers.filter(function(a){ return a === null; }).length;
+    if (totalSeconds > 0 && unanswered > 0) {
+      var ok = confirm("You have " + unanswered + " unanswered question(s). Submit anyway?");
+      if (!ok) return;
+    }
+    stopSpeech();
+    submitted = true;
+    clearInterval(timerInterval);
+    clearState();
+
+    var result = computeScores();
+    saveHistoryEntry({
+      date: new Date().toISOString(),
+      correct: result.correctCount,
+      pct: Math.round(result.correctCount / 100 * 100)
+    });
+    showResultsFor(result.correctCount, result.partScores, "YOUR SCORE");
+  }
+
+  document.getElementById("submitBtn").addEventListener("click", function() {
+    if (retakeMode) {
+      finishRetake();
+    } else {
+      doSubmit();
+    }
+  });
+
+  function finishRetake() {
+    stopSpeech();
+    var result = computeScores();
+    retakeMode = false;
+    activeIndices = range(0, 100);
+    document.getElementById("practiceBadge").style.display = "none";
+    document.getElementById("timerDisplay").style.display = "inline-block";
+    document.getElementById("submitBtn").textContent = "Submit Exam";
+    showResultsFor(result.correctCount, result.partScores, "UPDATED SCORE AFTER RETAKE");
+  }
+
+  document.getElementById("retakeBtn").addEventListener("click", function() {
+    var result = computeScores();
+    var missed = [];
+    QUESTIONS.forEach(function(q, i) { if (answers[i] !== q.a) missed.push(i); });
+    if (!missed.length) return;
+    retakeMode = true;
+    activeIndices = missed;
+    idx = 0;
+    document.getElementById("practiceBadge").style.display = "inline-block";
+    document.getElementById("timerDisplay").style.display = "none";
+    document.getElementById("submitBtn").textContent = "Finish Retake";
+    document.getElementById("resultsView").style.display = "none";
+    document.getElementById("examView").style.display = "block";
+    document.getElementById("reviewList").style.display = "none";
+    renderQuestion();
+    renderMap();
+    speakCurrentQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  document.getElementById("reviewBtn").addEventListener("click", function() {
+    var list = document.getElementById("reviewList");
+    if (list.style.display === "block") {
+      list.style.display = "none";
+      this.textContent = "Review All Answers";
+      return;
+    }
+    list.innerHTML = "";
+    QUESTIONS.forEach(function(q, i) {
+      var yourAns = answers[i];
+      var isCorrect = yourAns === q.a;
+      var div = document.createElement("div");
+      div.className = "review-item " + (yourAns === null ? "blank" : (isCorrect ? "correct" : "incorrect"));
+      var html = '<div class="review-q">' + (flagged[i] ? "★ " : "") + q.n + '. ' + q.q + '</div>';
+      if (yourAns === null) {
+        html += '<div class="review-line" style="color:#b8860b;font-weight:700;">You left this blank.</div>';
+      } else if (isCorrect) {
+        html += '<div class="review-line you-correct">Your answer: ' + letters[yourAns] + '. ' + q.c[yourAns] + ' ✓</div>';
+      } else {
+        html += '<div class="review-line you-wrong">Your answer: ' + letters[yourAns] + '. ' + q.c[yourAns] + '</div>';
+      }
+      if (!isCorrect) {
+        html += '<div class="review-line correct-answer">Correct answer: ' + letters[q.a] + '. ' + q.c[q.a] + '</div>';
+      }
+      html += '<div class="review-exp">' + q.exp + '</div>';
+      html += '<div class="review-cite">' + q.cite + '</div>';
+      div.innerHTML = html;
+      list.appendChild(div);
+    });
+    list.style.display = "block";
+    this.textContent = "Hide Review";
+  });
+
+  document.getElementById("restartBtn").addEventListener("click", function() {
+    if (!confirm("Restart the exam? This clears all your answers, flags, and resets the timer.")) return;
+    answers = new Array(100).fill(null);
+    flagged = new Array(100).fill(false);
+    activeIndices = range(0, 100);
+    idx = 0;
+    submitted = false;
+    retakeMode = false;
+    totalSeconds = 3 * 3600;
+    clearState();
+    document.getElementById("timerDisplay").classList.remove("low");
+    document.getElementById("timerDisplay").style.display = "inline-block";
+    document.getElementById("practiceBadge").style.display = "none";
+    document.getElementById("submitBtn").textContent = "Submit Exam";
+    document.getElementById("examView").style.display = "block";
+    document.getElementById("resultsView").style.display = "none";
+    document.getElementById("reviewList").style.display = "none";
+    document.getElementById("reviewBtn").textContent = "Review All Answers";
+    renderQuestion();
+    renderMap();
+    speakCurrentQuestion();
+    startTimer();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  // ---------------- Resume-in-progress banner ----------------
+  function beginFresh() {
+    renderQuestion();
+    renderMap();
+    startTimer();
+    speakCurrentQuestion();
+  }
+
+  var saved = loadState();
+  if (saved && saved.answers.some(function(a){ return a !== null; })) {
+    document.getElementById("resumeOverlay").style.display = "flex";
+    var minsLeft = Math.round(saved.totalSeconds / 60);
+    document.getElementById("resumeText").textContent =
+      "You have an exam in progress — question " + ((saved.idx||0)+1) + ", about " + minsLeft +
+      " minute(s) left on the clock. Pick up where you left off, or start over from question 1.";
+
+    document.getElementById("resumeGoBtn").addEventListener("click", function() {
+      answers = saved.answers;
+      flagged = saved.flagged || new Array(100).fill(false);
+      idx = saved.idx || 0;
+      totalSeconds = saved.totalSeconds || 3*3600;
+      activeIndices = saved.activeIndices || range(0,100);
+      retakeMode = !!saved.retakeMode;
+      document.getElementById("resumeOverlay").style.display = "none";
+      if (retakeMode) {
+        document.getElementById("practiceBadge").style.display = "inline-block";
+        document.getElementById("timerDisplay").style.display = "none";
+        document.getElementById("submitBtn").textContent = "Finish Retake";
+      }
+      beginFresh();
+    });
+    document.getElementById("resumeFreshBtn").addEventListener("click", function() {
+      clearState();
+      document.getElementById("resumeOverlay").style.display = "none";
+      beginFresh();
+    });
+  } else {
+    beginFresh();
+  }
+</script>
+</body>
+</html>
