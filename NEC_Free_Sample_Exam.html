@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEC Practice Exam — Free Sample</title>
+<style>
+  :root {
+    --navy: #0033cc;
+    --navy-dark: #001e82;
+    --red: #f21824;
+    --gold: #e09e14;
+    --teal: #108a76;
+    --ink: #1a1a22;
+    --grey: #6b6b72;
+    --pale: #f5f6f8;
+    --bg-deep: #020510;
+    --bg-mid: #071033;
+  }
+  * { box-sizing: border-box; }
+  html { min-height: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse 1000px 560px at 50% -6%, rgba(60,100,255,0.40), transparent 60%),
+      radial-gradient(ellipse 800px 640px at 95% 105%, rgba(20,60,200,0.28), transparent 55%),
+      radial-gradient(ellipse 700px 500px at 0% 60%, rgba(16,138,118,0.14), transparent 55%),
+      linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 45%, var(--bg-deep) 100%);
+    background-attachment: fixed;
+  }
+  .topbar {
+    background: linear-gradient(180deg, rgba(4,10,42,0.94), rgba(0,22,110,0.88));
+    color: white;
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 28px rgba(40,90,255,0.35), 0 1px 0 rgba(130,165,255,0.35);
+    border-bottom: 1px solid rgba(130,165,255,0.25);
+  }
+  .topbar-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .topbar h1 { margin: 0; font-size: 16px; letter-spacing: 0.3px; }
+  .free-pill {
+    background: var(--gold);
+    color: var(--navy-dark);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    border-radius: 10px;
+  }
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 18px 70px;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: rgba(220,230,255,0.75);
+    margin: 14px 2px 8px;
+  }
+  .progress-outer {
+    height: 7px;
+    background: rgba(255,255,255,0.14);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.35);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-inner {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--gold);
+    transition: width 0.25s ease;
+    box-shadow: 0 0 10px var(--gold);
+  }
+  .qcard {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 44px rgba(0,8,50,0.55), 0 0 0 1px rgba(255,255,255,0.7) inset, 0 0 70px rgba(60,110,255,0.20);
+    padding: 24px 22px;
+    border-top: 6px solid var(--navy);
+  }
+  .qmeta {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--grey);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .qtext {
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0 0 18px;
+  }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid #e4e5ec;
+    border-radius: 12px;
+    padding: 13px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 15.5px;
+    line-height: 1.4;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .opt:hover { border-color: var(--navy); }
+  .opt.locked { cursor: default; }
+  .opt .letter {
+    flex: 0 0 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #eceef4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .opt.correct { border-color: var(--teal); background: #ebfaf6; }
+  .opt.correct .letter { background: var(--teal); color: white; }
+  .opt.wrong { border-color: var(--red); background: #fdecec; }
+  .opt.wrong .letter { background: var(--red); color: white; }
+  .feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--pale);
+    border-left: 4px solid var(--navy);
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  .feedback .cite {
+    display: inline-block;
+    margin-top: 8px;
+    font-weight: 800;
+    font-size: 12.5px;
+    letter-spacing: 0.3px;
+    color: var(--navy);
+    background: #e8edff;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .nextrow { margin-top: 18px; text-align: right; }
+  .next-btn {
+    display: none;
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+  }
+  .next-btn:hover { filter: brightness(1.1); }
+
+  /* results / CTA screen */
+  .results { display: none; }
+  .score-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 44px rgba(0,8,50,0.55);
+    padding: 30px 24px;
+    text-align: center;
+    border-top: 6px solid var(--gold);
+  }
+  .score-card .big {
+    font-size: 46px;
+    font-weight: 900;
+    color: var(--navy-dark);
+    margin: 4px 0;
+  }
+  .score-card .label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+  .cta-box {
+    margin-top: 22px;
+    background: var(--navy-dark);
+    color: white;
+    border-radius: 16px;
+    padding: 26px 24px;
+    box-shadow: 0 12px 40px rgba(0,20,110,0.45);
+  }
+  .cta-box h2 {
+    margin: 0 0 8px;
+    font-size: 21px;
+    line-height: 1.3;
+  }
+  .cta-box p.lead {
+    color: #c7d3ff;
+    font-size: 14.5px;
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+  .feature-list { list-style: none; margin: 0 0 22px; padding: 0; }
+  .feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #e7ecff;
+  }
+  .feature-list .dot {
+    flex: 0 0 8px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 6px;
+  }
+  .cta-btn {
+    display: block;
+    text-align: center;
+    background: var(--gold);
+    color: var(--navy-dark);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(224,158,20,0.35);
+  }
+  .cta-btn:hover { filter: brightness(1.05); }
+  .cta-sub {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 12px;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 26px;
+    font-size: 11.5px;
+    color: rgba(220,230,255,0.5);
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <h1>NEC Practice Exam — Free Sample</h1>
+      <div class="free-pill">FREE SAMPLE</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="quiz">
+      <div class="progress-row">
+        <span id="qcount">Question 1 of 10</span>
+        <span id="qsec"></span>
+      </div>
+      <div class="progress-outer"><div class="progress-inner" id="pbar" style="width:10%"></div></div>
+
+      <div class="qcard">
+        <div class="qmeta" id="qmeta"></div>
+        <div class="qtext" id="qtext"></div>
+        <div id="opts"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="nextrow"><button class="next-btn" id="nextBtn">Next Question →</button></div>
+      </div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="score-card">
+        <div class="label">Your Score</div>
+        <div class="big" id="scoreBig">0 / 10</div>
+        <div class="label" id="scorePct">0% correct</div>
+      </div>
+
+      <div class="cta-box">
+        <h2>Like what you saw? This was just a sample.</h2>
+        <p class="lead">The full practice exam is the real thing electricians use to get exam-ready — every question cited to the exact NEC section, so you know exactly where to study next.</p>
+        <ul class="feature-list">
+          <li><span class="dot"></span> All 100 questions across 21 NEC articles</li>
+          <li><span class="dot"></span> 29 real calculation problems (load calcs, ampacity, box fill, motors)</li>
+          <li><span class="dot"></span> Full explanation + exact NEC citation for every answer</li>
+          <li><span class="dot"></span> Timed, 4-part exam mode — 3 hours, just like exam day</li>
+        </ul>
+        <a class="cta-btn" href="#get-the-full-exam" target="_blank" rel="noopener">Get the Full 100-Question Exam →</a>
+        <div class="cta-sub">Instant PDF download · lifetime access</div>
+      </div>
+      <div class="footer">Smart Electric Training Program — Isa Harris (Premier Edition)</div>
+    </div>
+  </div>
+
+<script>
+  var Q = [{"n": 1, "sec": "Article 90 \u2014 Introduction", "q": "What is the primary purpose of the NEC per 90.1(A)?", "c": ["To ensure the most economical installation", "The practical safeguarding of persons and property from hazards arising from the use of electricity", "To guarantee electrical systems are future-proof", "To standardize electrician wages"], "a": 1, "calc": false, "exp": "90.1(A) states the purpose is practical safeguarding of persons and property from electrical hazards \u2014 not efficiency or future adequacy, which 90.1(B) explicitly disclaims.", "cite": "NEC 90.1(A)"}, {"n": 10, "sec": "Article 210 \u2014 Branch Circuits", "q": "In a dwelling unit, kitchen and dining area receptacles must be supplied by how many 20-amp small-appliance branch circuits, minimum?", "c": ["1", "2", "3", "4"], "a": 1, "calc": false, "exp": "At least two 20A small-appliance circuits are required to serve kitchen/dining receptacles.", "cite": "NEC 210.11(C)(1)"}, {"n": 14, "sec": "Article 210 \u2014 Branch Circuits", "q": "In dwelling unit habitable rooms, no point along a wall space may be more than how far (measured horizontally along the floor line) from a receptacle outlet?", "c": ["3 feet", "6 feet", "8 feet", "12 feet"], "a": 1, "calc": false, "exp": "The 6-foot rule from any point produces receptacle spacing no more than 12 feet apart.", "cite": "NEC 210.52(A)"}, {"n": 20, "sec": "Article 220 \u2014 Calculations", "q": "A dwelling has 1,500 sq ft of livable floor area. Using the general lighting load factor of 3 VA per sq ft, what is the general lighting load?", "c": ["3,000 VA", "4,500 VA", "1,500 VA", "6,000 VA"], "a": 1, "calc": true, "exp": "1,500 sq ft \u00d7 3 VA/sq ft = 4,500 VA.", "cite": "NEC Table 220.12"}, {"n": 33, "sec": "Article 230 \u2014 Services", "q": "A standard direct-buried service conductor (not in a raceway, not under a building, general condition, 600V or less) requires a minimum burial depth of approximately:", "c": ["6 inches", "12 inches", "18 inches", "24 inches"], "a": 3, "calc": false, "exp": "Table 300.5 sets 24 inches as the general direct-burial minimum cover for conductors under 600V.", "cite": "NEC Table 300.5"}, {"n": 45, "sec": "Article 250 \u2014 Grounding & Bonding", "q": "A service uses 2 AWG copper service-entrance conductors. Per Table 250.66, what is the minimum copper grounding electrode conductor size?", "c": ["8 AWG", "6 AWG", "4 AWG", "2 AWG"], "a": 0, "calc": true, "exp": "Table 250.66's breakpoint for service conductors up to 2 AWG copper is an 8 AWG copper GEC.", "cite": "NEC Table 250.66"}, {"n": 61, "sec": "Article 310 & Ch. 9 \u2014 Conductors", "q": "A 4 AWG THHN copper conductor has a 90\u00b0C ampacity of 95A. Installed with 9 total current-carrying conductors in the same raceway (adjustment factor 70% per Table 310.15(C)(1)), what is the adjusted ampacity?", "c": ["66.5 A", "95 A", "47.5 A", "76 A"], "a": 0, "calc": true, "exp": "95A \u00d7 0.70 = 66.5A.", "cite": "NEC Table 310.15(C)(1)"}, {"n": 76, "sec": "Article 404/406 \u2014 Switches & Receptacles", "q": "Receptacles installed in wet locations must be within an enclosure that is weatherproof:", "c": ["Only when the receptacle is not in use", "Whether or not a cord is plugged in (in-use cover), for 15/20A 125\u2013250V receptacles in wet locations", "Never required if GFCI protected", "Only for 240V receptacles"], "a": 1, "calc": false, "exp": "In-use covers are required so the receptacle stays weatherproof even with a cord connected.", "cite": "NEC 406.9(B)"}, {"n": 79, "sec": "Article 410 \u2014 Luminaires", "q": "Luminaires (fixtures) installed over combustible material must be:", "c": ["Wired with any conductor type", "Constructed/installed to prevent ignition of the combustible material, per manufacturer instructions/listing", "Prohibited entirely", "Only used with incandescent lamps"], "a": 1, "calc": false, "exp": "Fixtures over combustibles must be listed/installed to avoid an ignition hazard.", "cite": "NEC 410.16"}, {"n": 100, "sec": "Article 690 \u2014 Solar Photovoltaic Systems", "q": "Photovoltaic system disconnecting means must be:", "c": ["Optional for residential systems", "Provided to disconnect the PV system from all other systems, and readily accessible", "Located only inside the building", "Not required if the system is under 5kW"], "a": 1, "calc": false, "exp": "A readily accessible disconnect isolating the PV system from all other systems is required regardless of size.", "cite": "NEC 690.13"}];
+  var idx = 0;
+  var correctCount = 0;
+  var letters = ["A","B","C","D"];
+
+  function renderQuestion() {
+    var q = Q[idx];
+    document.getElementById("qcount").textContent = "Question " + (idx+1) + " of " + Q.length;
+    document.getElementById("qsec").textContent = q.sec;
+    document.getElementById("pbar").style.width = ((idx) / Q.length * 100) + "%";
+    document.getElementById("qmeta").textContent = q.sec.toUpperCase();
+    document.getElementById("qtext").textContent = q.q;
+    document.getElementById("feedback").style.display = "none";
+    document.getElementById("feedback").innerHTML = "";
+    document.getElementById("nextBtn").style.display = "none";
+
+    var optsDiv = document.getElementById("opts");
+    optsDiv.innerHTML = "";
+    q.c.forEach(function(choice, i) {
+      var el = document.createElement("div");
+      el.className = "opt";
+      el.innerHTML = '<div class="letter">' + letters[i] + '</div><div>' + choice + '</div>';
+      el.onclick = function() { selectAnswer(i, el); };
+      optsDiv.appendChild(el);
+    });
+  }
+
+  function selectAnswer(i, el) {
+    var q = Q[idx];
+    var opts = document.querySelectorAll("#opts .opt");
+    opts.forEach(function(o) { o.classList.add("locked"); o.onclick = null; });
+
+    if (i === q.a) {
+      el.classList.add("correct");
+      correctCount++;
+    } else {
+      el.classList.add("wrong");
+      opts[q.a].classList.add("correct");
+    }
+
+    var fb = document.getElementById("feedback");
+    fb.style.display = "block";
+    fb.innerHTML = (i === q.a ? "<strong>Correct.</strong> " : "<strong>Not quite.</strong> ") +
+                   q.exp + '<br><span class="cite">' + q.cite + '</span>';
+
+    document.getElementById("nextBtn").style.display = "inline-block";
+  }
+
+  document.getElementById("nextBtn").onclick = function() {
+    idx++;
+    if (idx >= Q.length) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  };
+
+  function showResults() {
+    document.getElementById("pbar").style.width = "100%";
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("results").style.display = "block";
+    document.getElementById("scoreBig").textContent = correctCount + " / " + Q.length;
+    document.getElementById("scorePct").textContent = Math.round(correctCount / Q.length * 100) + "% correct";
+  }
+
+  renderQuestion();
+</script>
+</body>
+</html>
